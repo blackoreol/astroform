@@ -109,9 +109,12 @@
         }
         
         .seconds-checkbox {
-            width: auto !important;
+            width: 18px !important;
+            height: 18px !important;
             margin: 0;
             flex-shrink: 0;
+            accent-color: #667eea;
+            cursor: pointer;
         }
         
         .seconds-input {
@@ -123,6 +126,46 @@
         
         #secondsInput {
             display: none;
+        }
+        
+        .date-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .date-select {
+            flex: 1;
+        }
+        
+        .year-select {
+            flex: 0 0 80px;
+        }
+        
+        .time-seconds-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .time-input-wrapper {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .seconds-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        
+        .seconds-wrapper label {
+            font-size: 12px;
+            margin: 0;
+            font-weight: normal;
+            white-space: nowrap;
         }
         
         #locationSearch, #currentCitySearch {
@@ -231,14 +274,28 @@
                 margin-bottom: 5px;
             }
             
-            .seconds-option {
-                padding: 6px;
+            .date-container {
                 gap: 6px;
             }
             
-            .seconds-option label {
+            .year-select {
+                flex: 0 0 70px;
+            }
+            
+            .time-seconds-container {
+                gap: 6px;
+            }
+            
+            .time-input-wrapper {
+                min-width: 100px;
+            }
+            
+            .seconds-wrapper {
+                gap: 4px;
+            }
+            
+            .seconds-wrapper label {
                 font-size: 11px;
-                min-width: 160px;
             }
             
             .seconds-input {
@@ -281,18 +338,19 @@
                 font-size: 14px;
             }
             
-            .seconds-option {
-                flex-direction: column;
-                align-items: flex-start;
+            .time-seconds-container {
+                flex-wrap: wrap;
                 gap: 5px;
             }
             
-            .seconds-option label {
+            .time-input-wrapper {
+                flex: 1 1 100%;
                 min-width: auto;
             }
             
-            .seconds-input {
-                align-self: flex-start;
+            .seconds-wrapper {
+                flex: 1 1 100%;
+                justify-content: flex-start;
             }
         }
         
@@ -396,23 +454,43 @@
             
             <div class="form-group">
                 <label for="birthDate">Дата рождения *</label>
-                <input type="date" id="birthDate" name="birthDate" required>
+                <div class="date-container">
+                    <select id="birthMonth" name="birthMonth" required class="date-select">
+                        <option value="">Месяц</option>
+                        <option value="1">Январь</option>
+                        <option value="2">Февраль</option>
+                        <option value="3">Март</option>
+                        <option value="4">Апрель</option>
+                        <option value="5">Май</option>
+                        <option value="6">Июнь</option>
+                        <option value="7">Июль</option>
+                        <option value="8">Август</option>
+                        <option value="9">Сентябрь</option>
+                        <option value="10">Октябрь</option>
+                        <option value="11">Ноябрь</option>
+                        <option value="12">Декабрь</option>
+                    </select>
+                    <select id="birthDay" name="birthDay" required class="date-select">
+                        <option value="">День</option>
+                    </select>
+                    <select id="birthYear" name="birthYear" required class="year-select">
+                        <option value="">Год</option>
+                    </select>
+                </div>
             </div>
             
             <div class="form-group">
                 <label for="birthTime">Время рождения *</label>
-                <div class="time-container">
-                    <input type="time" id="birthTime" name="birthTime" required 
-                           class="time-input" step="60">
-                </div>
-                
-                <div class="seconds-option">
-                    <input type="checkbox" id="includeSeconds" class="seconds-checkbox">
-                    <label for="includeSeconds">
-                        Указать секунды (для точного расчета)
-                    </label>
-                    <input type="number" id="secondsInput" class="seconds-input" 
-                           min="0" max="59" placeholder="00">
+                <div class="time-seconds-container">
+                    <div class="time-input-wrapper">
+                        <input type="time" id="birthTime" name="birthTime" required step="60">
+                    </div>
+                    <div class="seconds-wrapper">
+                        <input type="checkbox" id="includeSeconds" class="seconds-checkbox">
+                        <label for="includeSeconds">Секунды</label>
+                        <input type="number" id="secondsInput" class="seconds-input" 
+                               min="0" max="59" placeholder="00">
+                    </div>
                 </div>
             </div>
             
@@ -440,6 +518,15 @@
                        placeholder="Введите ваш email (необязательно)">
             </div>
             
+            <div class="form-group">
+                <label for="gender">Пол *</label>
+                <select id="gender" name="gender" required>
+                    <option value="">Выберите пол</option>
+                    <option value="male">Мужской</option>
+                    <option value="female">Женский</option>
+                </select>
+            </div>
+            
             <button type="submit" class="submit-btn" id="submitBtn">
                 ✨ Отправить данные
             </button>
@@ -459,6 +546,65 @@
         if (tg.colorScheme === 'dark') {
             document.body.style.background = 'linear-gradient(135deg, #2d3748 0%, #4a5568 100%)';
         }
+        
+        // Заполнение селекторов даты
+        function initializeDateSelectors() {
+            const daySelect = document.getElementById('birthDay');
+            const yearSelect = document.getElementById('birthYear');
+            
+            // Заполняем дни (1-31)
+            for (let i = 1; i <= 31; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                daySelect.appendChild(option);
+            }
+            
+            // Заполняем годы (от текущего года до 1920)
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i >= 1920; i--) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+        }
+        
+        // Обновление количества дней в месяце
+        function updateDaysInMonth() {
+            const monthSelect = document.getElementById('birthMonth');
+            const daySelect = document.getElementById('birthDay');
+            const yearSelect = document.getElementById('birthYear');
+            
+            const month = parseInt(monthSelect.value);
+            const year = parseInt(yearSelect.value) || new Date().getFullYear();
+            
+            if (!month) return;
+            
+            const daysInMonth = new Date(year, month, 0).getDate();
+            const currentDay = daySelect.value;
+            
+            // Очищаем и заново заполняем дни
+            daySelect.innerHTML = '<option value="">День</option>';
+            for (let i = 1; i <= daysInMonth; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                daySelect.appendChild(option);
+            }
+            
+            // Восстанавливаем выбранный день, если он валиден
+            if (currentDay && currentDay <= daysInMonth) {
+                daySelect.value = currentDay;
+            }
+        }
+        
+        // Инициализируем селекторы даты
+        initializeDateSelectors();
+        
+        // Добавляем обработчики для обновления дней в месяце
+        document.getElementById('birthMonth').addEventListener('change', updateDaysInMonth);
+        document.getElementById('birthYear').addEventListener('change', updateDaysInMonth);
         
         // Включение/выключение поля секунд
         document.getElementById('includeSeconds').addEventListener('change', function() {
@@ -599,11 +745,17 @@
                 // Получаем данные формы
                 const formData = new FormData(this);
                 const name = formData.get('name');
-                const birthDate = formData.get('birthDate');
+                const birthMonth = formData.get('birthMonth');
+                const birthDay = formData.get('birthDay');
+                const birthYear = formData.get('birthYear');
                 const birthTime = formData.get('birthTime');
                 const email = formData.get('email') || '';
+                const gender = formData.get('gender');
                 const includeSeconds = document.getElementById('includeSeconds').checked;
                 const seconds = includeSeconds ? (document.getElementById('secondsInput').value || '0') : '0';
+                
+                // Создаем дату в формате YYYY-MM-DD
+                const birthDate = `${birthYear}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}`;
                 
                 // Создаем полное время с секундами
                 const fullTime = `${birthTime}:${seconds.padStart(2, '0')}`;
@@ -614,6 +766,7 @@
                 const data = {
                     name: name,
                     email: email,
+                    gender: gender,
                     birthDate: birthDate,
                     birthTime: birthTime,
                     birthTimeWithSeconds: fullTime,
@@ -628,9 +781,9 @@
                     
                     // Отдельные компоненты даты и времени
                     separateComponents: {
-                        year: dateObj.getFullYear(),
-                        month: dateObj.getMonth() + 1,
-                        day: dateObj.getDate(),
+                        year: parseInt(birthYear),
+                        month: parseInt(birthMonth),
+                        day: parseInt(birthDay),
                         hour: dateObj.getHours(),
                         minute: dateObj.getMinutes(),
                         second: parseInt(seconds)
@@ -686,11 +839,10 @@
         }
         
         // Устанавливаем сегодняшнюю дату как максимальную для поля даты рождения
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('birthDate').setAttribute('max', today);
+        // (убираем старый код для input[type="date"])
         
         // Предотвращаем зум при фокусе на инпутах (для iOS)
-        const inputs = document.querySelectorAll('input');
+        const inputs = document.querySelectorAll('input, select');
         inputs.forEach(input => {
             input.addEventListener('focus', function() {
                 this.style.fontSize = '16px';
