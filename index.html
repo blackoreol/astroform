@@ -184,6 +184,13 @@
             margin-top: 5px;
             text-align: center;
         }
+
+        .success-message {
+            color: #2ed573;
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -237,19 +244,29 @@
             </button>
             
             <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
         </form>
     </div>
     
     <script>
+        // ВАЖНО: Замените на ваш реальный URL webhook от n8n
+        const N8N_WEBHOOK_URL = 'YOUR_N8N_WEBHOOK_URL/webhook/telegram-form';
+        
         // Инициализация Telegram WebApp
+        let telegramUser = null;
+        let chatId = null;
+        
         if (window.Telegram && window.Telegram.WebApp) {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
             
+            // Получаем данные пользователя Telegram
+            telegramUser = Telegram.WebApp.initDataUnsafe.user;
+            chatId = telegramUser?.id;
+            
             // Предзаполнение имени из данных пользователя
-            const user = Telegram.WebApp.initDataUnsafe.user;
-            if (user && user.first_name) {
-                document.getElementById('name').value = user.first_name;
+            if (telegramUser && telegramUser.first_name) {
+                document.getElementById('name').value = telegramUser.first_name;
             }
         }
         
@@ -263,6 +280,7 @@
         const selectedLocationInput = document.getElementById('selected-location-data');
         const submitBtn = document.getElementById('submit-btn');
         const errorDiv = document.getElementById('error-message');
+        const successDiv = document.getElementById('success-message');
         
         let debounceTimer;
         
@@ -331,16 +349,61 @@
             }
         });
         
-        // Функция показа ошибки
+        // Функция показа сообщений
         const showError = (message) => {
             errorDiv.textContent = message;
+            successDiv.textContent = '';
             setTimeout(() => {
                 errorDiv.textContent = '';
             }, 5000);
         };
+
+        const showSuccess = (message) => {
+            successDiv.textContent = message;
+            errorDiv.textContent = '';
+            setTimeout(() => {
+                successDiv.textContent = '';
+            }, 5000);
+        };
+        
+        // Функция отправки в n8n
+        const sendToN8N = async (formData) => {
+            try {
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: {
+                            from: telegramUser || {
+                                id: 'unknown',
+                                first_name: formData.name,
+                                username: 'unknown'
+                            },
+                            chat: {
+                                id: chatId || 'unknown'
+                            },
+                            web_app_data: {
+                                data: JSON.stringify(formData)
+                            }
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('Ошибка отправки в n8n:', error);
+                throw error;
+            }
+        };
         
         // Обработка отправки формы
-        form.addEventListener('submit', function(event) {
+        form.addEventListener('submit', async function(event) {
             event.preventDefault();
             
             const name = nameInput.value.trim();
@@ -371,30 +434,36 @@
                     timestamp: new Date().toISOString()
                 };
                 
+                // Отправляем в n8n
+                await sendToN8N(formData);
+                
+                // Уведомляем пользователя через Telegram WebApp
                 if (window.Telegram && window.Telegram.WebApp) {
-                    // Отправляем данные через Telegram WebApp
+                    // Также отправляем через Telegram для совместимости
                     Telegram.WebApp.sendData(JSON.stringify(formData));
                     
-                    // Показываем успешное сообщение и закрываем WebApp
+                    // Показываем успешное сообщение
+                    showSuccess('Анкета успешно отправлена!');
+                    
                     setTimeout(() => {
                         if (Telegram.WebApp.showAlert) {
-                            Telegram.WebApp.showAlert('Анкета успешно отправлена!', () => {
+                            Telegram.WebApp.showAlert('Спасибо! Ваша анкета получена и обрабатывается.', () => {
                                 Telegram.WebApp.close();
                             });
                         } else {
                             Telegram.WebApp.close();
                         }
-                    }, 500);
+                    }, 1500);
                 } else {
                     // Fallback для тестирования вне Telegram
+                    showSuccess('Данные успешно отправлены!');
                     console.log('Данные формы:', formData);
-                    showError('Форма работает только в Telegram WebApp');
                 }
                 
             } catch (error) {
                 console.error('Ошибка отправки:', error);
-                showError('Произошла ошибка при отправке данных');
-                
+                showError('Произошла ошибка при отправке данных. Попробуйте еще раз.');
+            } finally {
                 // Возвращаем кнопку в нормальное состояние
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('loading');
