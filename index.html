@@ -107,6 +107,7 @@
             margin-top: 8px;
             cursor: pointer;
             transition: background-color 0.2s ease;
+            user-select: none;
         }
         
         .checkbox-section:hover {
@@ -121,6 +122,7 @@
             accent-color: #667eea;
             cursor: pointer;
             flex-shrink: 0;
+            position: relative;
         }
         
         .checkbox-section label {
@@ -412,8 +414,8 @@
                     </div>
                     
                     <!-- Чекбокс для секунд -->
-                    <div class="checkbox-section" onclick="toggleSeconds()">
-                        <input type="checkbox" id="includeSeconds" onclick="event.stopPropagation()">
+                    <div class="checkbox-section">
+                        <input type="checkbox" id="includeSeconds">
                         <label for="includeSeconds">Указать секунды (если известны точно)</label>
                     </div>
                     
@@ -435,8 +437,8 @@
                 </div>
                 
                 <!-- Чекбокс для другого места проживания -->
-                <div class="checkbox-section" onclick="toggleCurrentCity()">
-                    <input type="checkbox" id="livesElsewhere" onclick="event.stopPropagation()">
+                <div class="checkbox-section">
+                    <input type="checkbox" id="livesElsewhere">
                     <label for="livesElsewhere">Проживаю в другом месте</label>
                 </div>
             </div>
@@ -553,106 +555,105 @@
         
         // === ОБРАБОТЧИКИ ЧЕКБОКСОВ ===
         
-        // Функция для переключения секунд
-        function toggleSeconds() {
+        // Обработчик для чекбокса секунд
+        function setupSecondsCheckbox() {
             const checkbox = document.getElementById('includeSeconds');
             const wrapper = document.getElementById('secondsInputWrapper');
             const input = document.getElementById('secondsInput');
+            const checkboxSection = checkbox.closest('.checkbox-section');
             
-            // Переключаем чекбокс
-            checkbox.checked = !checkbox.checked;
+            // Обработчик для клика по всей секции
+            checkboxSection.addEventListener('click', function(e) {
+                // Если кликнули по самому чекбоксу, не обрабатываем клик по секции
+                if (e.target === checkbox) return;
+                
+                // Переключаем чекбокс
+                checkbox.checked = !checkbox.checked;
+                toggleSecondsField();
+            });
             
-            if (checkbox.checked) {
-                wrapper.classList.add('show');
-                input.focus();
-            } else {
-                wrapper.classList.remove('show');
-                input.value = '0';
+            // Обработчик для самого чекбокса
+            checkbox.addEventListener('change', toggleSecondsField);
+            
+            function toggleSecondsField() {
+                if (checkbox.checked) {
+                    wrapper.classList.add('show');
+                    setTimeout(() => input.focus(), 100);
+                } else {
+                    wrapper.classList.remove('show');
+                    input.value = '0';
+                }
             }
         }
         
-        // Функция для переключения города проживания
-        function toggleCurrentCity() {
+        // Обработчик для чекбокса города проживания
+        function setupCurrentCityCheckbox() {
             const checkbox = document.getElementById('livesElsewhere');
             const currentCityGroup = document.getElementById('currentCityGroup');
             const currentCityInput = document.getElementById('currentCity');
+            const checkboxSection = checkbox.closest('.checkbox-section');
             
-            // Переключаем чекбокс
-            checkbox.checked = !checkbox.checked;
+            // Обработчик для клика по всей секции
+            checkboxSection.addEventListener('click', function(e) {
+                // Если кликнули по самому чекбоксу, не обрабатываем клик по секции
+                if (e.target === checkbox) return;
+                
+                // Переключаем чекбокс
+                checkbox.checked = !checkbox.checked;
+                toggleCurrentCityField();
+            });
             
-            if (checkbox.checked) {
-                currentCityGroup.classList.remove('hidden');
-                currentCityInput.required = true;
-            } else {
-                currentCityGroup.classList.add('hidden');
-                currentCityInput.required = false;
-                currentCityInput.value = '';
-                selectedCurrentCity = null;
-                document.getElementById('currentCitySuggestions').style.display = 'none';
+            // Обработчик для самого чекбокса
+            checkbox.addEventListener('change', toggleCurrentCityField);
+            
+            function toggleCurrentCityField() {
+                if (checkbox.checked) {
+                    currentCityGroup.classList.remove('hidden');
+                    currentCityInput.required = true;
+                    setTimeout(() => currentCityInput.focus(), 100);
+                } else {
+                    currentCityGroup.classList.add('hidden');
+                    currentCityInput.required = false;
+                    currentCityInput.value = '';
+                    selectedCurrentCity = null;
+                    document.getElementById('currentCitySuggestions').style.display = 'none';
+                }
             }
         }
-        
-        // Отдельные обработчики для чекбоксов (для случая прямого клика)
-        document.getElementById('includeSeconds').addEventListener('change', function() {
-            const wrapper = document.getElementById('secondsInputWrapper');
-            const input = document.getElementById('secondsInput');
-            
-            if (this.checked) {
-                wrapper.classList.add('show');
-                input.focus();
-            } else {
-                wrapper.classList.remove('show');
-                input.value = '0';
-            }
-        });
-        
-        document.getElementById('livesElsewhere').addEventListener('change', function() {
-            const currentCityGroup = document.getElementById('currentCityGroup');
-            const currentCityInput = document.getElementById('currentCity');
-            
-            if (this.checked) {
-                currentCityGroup.classList.remove('hidden');
-                currentCityInput.required = true;
-            } else {
-                currentCityGroup.classList.add('hidden');
-                currentCityInput.required = false;
-                currentCityInput.value = '';
-                selectedCurrentCity = null;
-                document.getElementById('currentCitySuggestions').style.display = 'none';
-            }
-        });
         
         // === ПОИСК ЛОКАЦИЙ ===
         
         // Обработчик для места рождения
-        document.getElementById('location').addEventListener('input', function() {
-            const query = this.value.trim();
+        function setupLocationSearch() {
+            document.getElementById('location').addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                if (query.length < 3) {
+                    document.getElementById('suggestions').style.display = 'none';
+                    return;
+                }
+                
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    searchLocations(query, 'birth');
+                }, 300);
+            });
             
-            if (query.length < 3) {
-                document.getElementById('suggestions').style.display = 'none';
-                return;
-            }
-            
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                searchLocations(query, 'birth');
-            }, 300);
-        });
-        
-        // Обработчик для города проживания
-        document.getElementById('currentCity').addEventListener('input', function() {
-            const query = this.value.trim();
-            
-            if (query.length < 3) {
-                document.getElementById('currentCitySuggestions').style.display = 'none';
-                return;
-            }
-            
-            clearTimeout(currentCitySearchTimeout);
-            currentCitySearchTimeout = setTimeout(() => {
-                searchLocations(query, 'current');
-            }, 300);
-        });
+            // Обработчик для города проживания
+            document.getElementById('currentCity').addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                if (query.length < 3) {
+                    document.getElementById('currentCitySuggestions').style.display = 'none';
+                    return;
+                }
+                
+                clearTimeout(currentCitySearchTimeout);
+                currentCitySearchTimeout = setTimeout(() => {
+                    searchLocations(query, 'current');
+                }, 300);
+            });
+        }
         
         // Функция поиска локаций
         async function searchLocations(query, type) {
@@ -724,108 +725,110 @@
         
         // === ОТПРАВКА ФОРМЫ ===
         
-        document.getElementById('astroForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Проверяем выбранную локацию рождения
-            if (!selectedLocation) {
-                alert('Пожалуйста, выберите место рождения из предложенных вариантов');
-                return;
-            }
-            
-            const livesElsewhere = document.getElementById('livesElsewhere').checked;
-            
-            // Если отмечено "Проживаю в другом месте", то должен быть выбран город проживания
-            if (livesElsewhere && !selectedCurrentCity) {
-                alert('Пожалуйста, выберите город проживания из предложенных вариантов');
-                return;
-            }
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const loadingDiv = document.getElementById('loading');
-            
-            submitBtn.disabled = true;
-            loadingDiv.style.display = 'block';
-            
-            try {
-                // Получаем данные формы
-                const formData = new FormData(this);
-                const name = formData.get('name');
-                const birthMonth = formData.get('birthMonth');
-                const birthDay = formData.get('birthDay');
-                const birthYear = formData.get('birthYear');
-                const birthTime = formData.get('birthTime');
-                const email = formData.get('email') || '';
-                const gender = formData.get('gender');
-                const includeSeconds = document.getElementById('includeSeconds').checked;
-                const seconds = includeSeconds ? (document.getElementById('secondsInput').value || '0') : '0';
+        function setupFormSubmit() {
+            document.getElementById('astroForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
                 
-                // Создаем дату в формате YYYY-MM-DD
-                const birthDate = `${birthYear}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}`;
-                
-                // Создаем полное время с секундами
-                const fullTime = `${birthTime}:${seconds.padStart(2, '0')}`;
-                
-                // Парсим дату и время для отдельных компонентов
-                const dateObj = new Date(birthDate + 'T' + fullTime);
-                
-                // Определяем текущий город: если не проживает в другом месте, то дублируем место рождения
-                const currentCityData = livesElsewhere ? selectedCurrentCity : selectedLocation;
-                
-                const data = {
-                    name: name,
-                    email: email,
-                    gender: gender,
-                    birthDate: birthDate,
-                    birthTime: birthTime,
-                    birthTimeWithSeconds: fullTime,
-                    includeSeconds: includeSeconds,
-                    birthLocation: selectedLocation,
-                    currentCity: currentCityData,
-                    livesElsewhere: livesElsewhere,
-                    timestamp: new Date().toISOString(),
-                    
-                    // Добавляем данные Telegram пользователя если доступны
-                    telegramUser: tg?.initDataUnsafe?.user || null,
-                    telegramChatId: tg?.initDataUnsafe?.chat?.id || null,
-                    
-                    // Отдельные компоненты даты и времени
-                    separateComponents: {
-                        year: parseInt(birthYear),
-                        month: parseInt(birthMonth),
-                        day: parseInt(birthDay),
-                        hour: dateObj.getHours(),
-                        minute: dateObj.getMinutes(),
-                        second: parseInt(seconds)
-                    }
-                };
-                
-                console.log('Отправляемые данные:', data);
-                console.log('Telegram init data:', tg?.initDataUnsafe);
-                
-                await sendToN8N(data);
-                
-                // Показываем успех и закрываем
-                if (tg && tg.close) {
-                    tg.close();
-                } else {
-                    alert('Данные успешно отправлены!');
-                    // Очищаем форму
-                    this.reset();
-                    selectedLocation = null;
-                    selectedCurrentCity = null;
-                    document.getElementById('secondsInputWrapper').classList.remove('show');
-                    document.getElementById('currentCityGroup').classList.add('hidden');
+                // Проверяем выбранную локацию рождения
+                if (!selectedLocation) {
+                    alert('Пожалуйста, выберите место рождения из предложенных вариантов');
+                    return;
                 }
                 
-            } catch (error) {
-                console.error('Ошибка отправки:', error);
-                alert('Произошла ошибка при отправке данных. Попробуйте еще раз.');
-            } finally {
-                submitBtn.disabled = false;
-                loadingDiv.style.display = 'none';
-            }
-        });
+                const livesElsewhere = document.getElementById('livesElsewhere').checked;
+                
+                // Если отмечено "Проживаю в другом месте", то должен быть выбран город проживания
+                if (livesElsewhere && !selectedCurrentCity) {
+                    alert('Пожалуйста, выберите город проживания из предложенных вариантов');
+                    return;
+                }
+                
+                const submitBtn = document.getElementById('submitBtn');
+                const loadingDiv = document.getElementById('loading');
+                
+                submitBtn.disabled = true;
+                loadingDiv.style.display = 'block';
+                
+                try {
+                    // Получаем данные формы
+                    const formData = new FormData(this);
+                    const name = formData.get('name');
+                    const birthMonth = formData.get('birthMonth');
+                    const birthDay = formData.get('birthDay');
+                    const birthYear = formData.get('birthYear');
+                    const birthTime = formData.get('birthTime');
+                    const email = formData.get('email') || '';
+                    const gender = formData.get('gender');
+                    const includeSeconds = document.getElementById('includeSeconds').checked;
+                    const seconds = includeSeconds ? (document.getElementById('secondsInput').value || '0') : '0';
+                    
+                    // Создаем дату в формате YYYY-MM-DD
+                    const birthDate = `${birthYear}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}`;
+                    
+                    // Создаем полное время с секундами
+                    const fullTime = `${birthTime}:${seconds.padStart(2, '0')}`;
+                    
+                    // Парсим дату и время для отдельных компонентов
+                    const dateObj = new Date(birthDate + 'T' + fullTime);
+                    
+                    // Определяем текущий город: если не проживает в другом месте, то дублируем место рождения
+                    const currentCityData = livesElsewhere ? selectedCurrentCity : selectedLocation;
+                    
+                    const data = {
+                        name: name,
+                        email: email,
+                        gender: gender,
+                        birthDate: birthDate,
+                        birthTime: birthTime,
+                        birthTimeWithSeconds: fullTime,
+                        includeSeconds: includeSeconds,
+                        birthLocation: selectedLocation,
+                        currentCity: currentCityData,
+                        livesElsewhere: livesElsewhere,
+                        timestamp: new Date().toISOString(),
+                        
+                        // Добавляем данные Telegram пользователя если доступны
+                        telegramUser: tg?.initDataUnsafe?.user || null,
+                        telegramChatId: tg?.initDataUnsafe?.chat?.id || null,
+                        
+                        // Отдельные компоненты даты и времени
+                        separateComponents: {
+                            year: parseInt(birthYear),
+                            month: parseInt(birthMonth),
+                            day: parseInt(birthDay),
+                            hour: dateObj.getHours(),
+                            minute: dateObj.getMinutes(),
+                            second: parseInt(seconds)
+                        }
+                    };
+                    
+                    console.log('Отправляемые данные:', data);
+                    console.log('Telegram init data:', tg?.initDataUnsafe);
+                    
+                    await sendToN8N(data);
+                    
+                    // Показываем успех и закрываем
+                    if (tg && tg.close) {
+                        tg.close();
+                    } else {
+                        alert('Данные успешно отправлены!');
+                        // Очищаем форму
+                        this.reset();
+                        selectedLocation = null;
+                        selectedCurrentCity = null;
+                        document.getElementById('secondsInputWrapper').classList.remove('show');
+                        document.getElementById('currentCityGroup').classList.add('hidden');
+                    }
+                    
+                } catch (error) {
+                    console.error('Ошибка отправки:', error);
+                    alert('Произошла ошибка при отправке данных. Попробуйте еще раз.');
+                } finally {
+                    submitBtn.disabled = false;
+                    loadingDiv.style.display = 'none';
+                }
+            });
+        }
         
         // Функция отправки данных в n8n
         async function sendToN8N(data) {
@@ -855,21 +858,4 @@
         
         // === ИНИЦИАЛИЗАЦИЯ ===
         
-        // Инициализируем форму при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeDateSelectors();
-            
-            // Добавляем обработчики для обновления дней в месяце
-            document.getElementById('birthMonth').addEventListener('change', updateDaysInMonth);
-            document.getElementById('birthYear').addEventListener('change', updateDaysInMonth);
-        });
-        
-        // Если DOM уже загружен
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeDateSelectors);
-        } else {
-            initializeDateSelectors();
-        }
-        
-        // Добавляем обработчики для обновления дней в месяце
-        document.getElementById('
+        // Инициализиру
