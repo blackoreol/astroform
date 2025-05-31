@@ -129,49 +129,25 @@
         let debounceTimer;
 
         const searchCity = async (query) => {
-            if (query.length < 3) {
-                cityResultsDiv.innerHTML = '';
-                return;
-            }
+            if (query.length < 3) { cityResultsDiv.innerHTML = ''; return; }
             const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&accept-language=uk,en&limit=5`;
-            
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                displayResults(data);
-            } catch (error) {
-                // В рабочей версии можно убрать console.error
-            }
+            try { const response = await fetch(url); const data = await response.json(); displayResults(data); } catch (error) { console.error('Ошибка при поиске города:', error); }
         };
 
         const displayResults = (results) => {
-            cityResultsDiv.innerHTML = '';
-            if (!results) return;
+            cityResultsDiv.innerHTML = ''; if (!results) return;
             results.forEach(place => {
-                const item = document.createElement('div');
-                item.className = 'result-item';
-                item.innerText = place.display_name;
+                const item = document.createElement('div'); item.className = 'result-item'; item.innerText = place.display_name;
                 item.onclick = () => {
                     citySearchInput.value = place.display_name;
-                    const locationData = {
-                        city: place.address.city || place.address.town || place.address.village || '',
-                        country: place.address.country || '',
-                        full_address: place.display_name
-                    };
-                    selectedLocationInput.value = JSON.stringify(locationData);
-                    cityResultsDiv.innerHTML = '';
+                    const locationData = { city: place.address.city || place.address.town || place.address.village || '', country: place.address.country || '', full_address: place.display_name };
+                    selectedLocationInput.value = JSON.stringify(locationData); cityResultsDiv.innerHTML = '';
                 };
                 cityResultsDiv.appendChild(item);
             });
         };
 
-        citySearchInput.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            selectedLocationInput.value = '';
-            debounceTimer = setTimeout(() => {
-                searchCity(citySearchInput.value);
-            }, 500);
-        });
+        citySearchInput.addEventListener('input', () => { clearTimeout(debounceTimer); selectedLocationInput.value = ''; debounceTimer = setTimeout(() => { searchCity(citySearchInput.value); }, 500); });
         
         form.addEventListener('submit', function(event) {
             event.preventDefault();
@@ -197,9 +173,16 @@
 
             Telegram.WebApp.sendData(JSON.stringify(finalData));
 
-            Telegram.WebApp.showAlert('Форма успешно отправлена!', () => {
+            // Проверка на совместимость для обратной поддержки старых клиентов Telegram
+            if (Telegram.WebApp.isVersionAtLeast('6.1')) {
+                // Для новых клиентов: показываем алерт, а после нажатия "ОК" - закрываем
+                Telegram.WebApp.showAlert('Форма успешно отправлена!', () => {
+                    Telegram.WebApp.close();
+                });
+            } else {
+                // Для старых клиентов: просто закрываем без уведомления
                 Telegram.WebApp.close();
-            });
+            }
         });
     </script>
 </body>
