@@ -229,9 +229,9 @@
             </div>
             
             <div class="form-group">
-                <label for="email">Email *</label>
-                <input type="email" id="email" name="email" required 
-                       placeholder="Введите ваш email">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" 
+                       placeholder="Введите ваш email (необязательно)">
             </div>
             
             <button type="submit" class="submit-btn" id="submitBtn">
@@ -243,13 +243,11 @@
             Отправка данных...
         </div>
     </div>
-
     <script>
         // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
-
         // Включение/выключение поля секунд
         document.getElementById('includeSeconds').addEventListener('change', function() {
             const secondsInput = document.getElementById('secondsInput');
@@ -261,7 +259,6 @@
                 secondsInput.value = '';
             }
         });
-
         // Поиск локаций через Nominatim API
         let searchTimeout;
         let currentCitySearchTimeout;
@@ -269,11 +266,9 @@
         const locationInput = document.getElementById('location');
         const suggestionsDiv = document.getElementById('suggestions');
         let selectedLocation = null;
-
         const currentCityInput = document.getElementById('currentCity');
         const currentCitySuggestionsDiv = document.getElementById('currentCitySuggestions');
         let selectedCurrentCity = null;
-
         // Обработчик для места рождения
         locationInput.addEventListener('input', function() {
             const query = this.value.trim();
@@ -282,13 +277,11 @@
                 suggestionsDiv.style.display = 'none';
                 return;
             }
-
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 searchLocations(query, 'birth');
             }, 300);
         });
-
         // Обработчик для города проживания
         currentCityInput.addEventListener('input', function() {
             const query = this.value.trim();
@@ -297,13 +290,11 @@
                 currentCitySuggestionsDiv.style.display = 'none';
                 return;
             }
-
             clearTimeout(currentCitySearchTimeout);
             currentCitySearchTimeout = setTimeout(() => {
                 searchLocations(query, 'current');
             }, 300);
         });
-
         async function searchLocations(query, type) {
             try {
                 const response = await fetch(
@@ -316,7 +307,6 @@
                 console.error('Ошибка поиска локации:', error);
             }
         }
-
         function displaySuggestions(locations, type) {
             const suggestionsContainer = type === 'birth' ? suggestionsDiv : currentCitySuggestionsDiv;
             const inputField = type === 'birth' ? locationInput : currentCityInput;
@@ -327,7 +317,6 @@
                 suggestionsContainer.style.display = 'none';
                 return;
             }
-
             locations.forEach(location => {
                 const div = document.createElement('div');
                 div.className = 'suggestion';
@@ -357,7 +346,6 @@
             
             suggestionsContainer.style.display = 'block';
         }
-
         // Скрытие подсказок при клике вне
         document.addEventListener('click', function(e) {
             if (!e.target.closest('#locationSearch')) {
@@ -367,7 +355,6 @@
                 currentCitySuggestionsDiv.style.display = 'none';
             }
         });
-
         // Отправка формы
         document.getElementById('astroForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -381,23 +368,20 @@
                 alert('Пожалуйста, выберите город проживания из предложенных вариантов');
                 return;
             }
-
             const submitBtn = document.getElementById('submitBtn');
             const loadingDiv = document.getElementById('loading');
             
             submitBtn.disabled = true;
             loadingDiv.style.display = 'block';
-
             try {
                 // Получаем данные формы
                 const formData = new FormData(this);
                 const name = formData.get('name');
                 const birthDate = formData.get('birthDate');
                 const birthTime = formData.get('birthTime');
-                const email = formData.get('email');
+                const email = formData.get('email') || ''; // Теперь email может быть пустым
                 const includeSeconds = document.getElementById('includeSeconds').checked;
                 const seconds = includeSeconds ? (document.getElementById('secondsInput').value || '0') : '0';
-
                 // Создаем полное время с секундами
                 const fullTime = `${birthTime}:${seconds.padStart(2, '0')}`;
                 
@@ -425,7 +409,6 @@
                         second: parseInt(seconds)
                     }
                 };
-
                 // Отправляем данные в n8n
                 await sendToN8N(data);
                 
@@ -440,7 +423,6 @@
                 loadingDiv.style.display = 'none';
             }
         });
-
         async function sendToN8N(data) {
             const webhookUrl = 'https://n8n.astroapp.pp.ua/webhook/telegram-form';
             
@@ -451,15 +433,12 @@
                 },
                 body: JSON.stringify(data)
             });
-
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
             console.log('Данные успешно отправлены в n8n');
             return response.json();
         }
-
         // Устанавливаем сегодняшнюю дату как максимальную для поля даты рождения
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('birthDate').setAttribute('max', today);
