@@ -424,7 +424,15 @@
             }
         });
         async function sendToN8N(data) {
-            const webhookUrl = 'https://n8n.astroapp.pp.ua/webhook/telegram-form';
+            // Определяем URL в зависимости от параметра в адресной строке
+            const urlParams = new URLSearchParams(window.location.search);
+            const isTest = urlParams.get('test') === 'true';
+            
+            const webhookUrl = isTest 
+                ? 'https://n8n.astroapp.pp.ua/webhook-test/telegram-form'
+                : 'https://n8n.astroapp.pp.ua/webhook/telegram-form';
+            
+            console.log(`Отправка в ${isTest ? 'тестовый' : 'основной'} webhook:`, webhookUrl);
             
             const response = await fetch(webhookUrl, {
                 method: 'POST',
