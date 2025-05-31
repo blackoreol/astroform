@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Анкета для n8n</title>
+    <title>Анкета</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,111 +17,184 @@
             --field-height: 50px;
             --font-main: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         body {
-            font-family: var(--font-main); padding: var(--form-padding);
-            color: var(--tg-theme-text-color); background-color: var(--tg-theme-bg-color);
-            display: flex; justify-content: center; align-items: flex-start;
-            min-height: 100vh; box-sizing: border-box; animation: fadeIn 0.5s ease-out;
+            font-family: var(--font-main);
+            padding: var(--form-padding);
+            color: var(--tg-theme-text-color);
+            background-color: var(--tg-theme-bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box;
+            animation: fadeIn 0.5s ease-out;
+            margin: 0;
         }
+        
         .form-container {
-            width: 100%; max-width: 420px;
+            width: 100%;
+            max-width: 420px;
             background-color: var(--tg-theme-secondary-bg-color);
-            border-radius: var(--form-radius); padding: calc(var(--form-padding) + 10px);
+            border-radius: var(--form-radius);
+            padding: calc(var(--form-padding) + 10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
-        h3 { font-size: 24px; font-weight: 700; margin: 0 0 25px 0; text-align: center; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 14px; font-weight: 500;
-            color: var(--tg-theme-hint-color); margin-bottom: 8px;
+        
+        h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 25px 0;
+            text-align: center;
+            color: var(--tg-theme-text-color);
         }
-        .form-group label svg { width: 16px; height: 16px; fill: currentColor; }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--tg-theme-hint-color);
+            margin-bottom: 8px;
+        }
+        
+        .form-group label svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        
         .form-group input {
-            width: 100%; height: var(--field-height); padding: 0 15px; box-sizing: border-box;
-            border-radius: 10px; border: 1.5px solid transparent;
-            background-color: var(--tg-theme-bg-color); color: var(--tg-theme-text-color);
-            font-size: 16px; font-family: var(--font-main);
+            width: 100%;
+            height: var(--field-height);
+            padding: 0 15px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            border: 1.5px solid transparent;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            font-size: 16px;
+            font-family: var(--font-main);
             transition: border-color 0.3s, box-shadow 0.3s;
         }
+        
         .form-group input:focus {
-            outline: none; border-color: var(--tg-theme-button-color);
+            outline: none;
+            border-color: var(--tg-theme-button-color);
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--tg-theme-button-color) 20%, transparent);
         }
-        .city-search-container { position: relative; }
+        
+        .city-search-container {
+            position: relative;
+        }
+        
         #city-results {
-            position: absolute; top: calc(100% + 5px); left: 0; right: 0;
-            background: var(--tg-theme-secondary-bg-color); border: 1.5px solid var(--tg-theme-hint-color);
-            border-radius: 10px; z-index: 10; max-height: 160px; overflow-y: auto;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); animation: fadeIn 0.3s;
-        }
-        .result-item { padding: 12px 15px; cursor: pointer; font-size: 15px; }
-        .result-item:hover { background-color: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); }
-        
-        .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        button {
-            width: 100%; height: var(--field-height); border: none; border-radius: 10px;
-            font-size: 16px; font-weight: 600; font-family: var(--font-main);
-            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            right: 0;
+            background: var(--tg-theme-secondary-bg-color);
+            border: 1.5px solid var(--tg-theme-hint-color);
+            border-radius: 10px;
+            z-index: 10;
+            max-height: 160px;
+            overflow-y: auto;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s;
         }
         
-        .primary-btn {
-            background-color: var(--tg-theme-button-color); 
+        .result-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            font-size: 15px;
+            border-bottom: 1px solid var(--tg-theme-hint-color);
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-item:hover {
+            background-color: var(--tg-theme-button-color);
             color: var(--tg-theme-button-text-color);
         }
         
-        .debug-btn {
-            background-color: #FF6B6B; 
-            color: white;
+        .submit-btn {
+            width: 100%;
+            height: var(--field-height);
+            border: none;
+            border-radius: 10px;
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            font-size: 16px;
+            font-weight: 600;
+            font-family: var(--font-main);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
         }
         
-        .test-btn {
-            background-color: #4ECDC4; 
-            color: white;
+        .submit-btn:active {
+            transform: scale(0.98);
         }
         
-        button:active { transform: scale(0.98); }
-        
-        .debug-info {
-            position: fixed; top: 10px; left: 10px; right: 10px;
-            background: rgba(0,0,0,0.9); color: #00ff00;
-            padding: 15px; border-radius: 8px; font-size: 11px;
-            max-height: 300px; overflow-y: auto; z-index: 1000;
-            font-family: monospace;
-            white-space: pre-wrap;
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
-        .status-indicator {
-            position: fixed; top: 10px; right: 10px;
-            width: 20px; height: 20px; border-radius: 50%;
-            background: #ff0000; z-index: 1001;
+        .loading {
+            position: relative;
+            color: transparent;
         }
         
-        .status-indicator.ready {
-            background: #00ff00;
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            color: #ff4757;
+            font-size: 14px;
+            margin-top: 5px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="status-indicator" id="status"></div>
-    <div id="debug" class="debug-info"></div>
-    
     <div class="form-container">
-        <h3>Анкета</h3>
+        <h3>📋 Анкета</h3>
         <form id="mainForm">
             <div class="form-group">
                 <label for="name">
-                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
                     Ваше имя
                 </label>
                 <input type="text" id="name" placeholder="Например, Иван" required>
@@ -129,237 +202,205 @@
             
             <div class="form-group">
                 <label for="birth-date">
-                    <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+                    </svg>
                     Дата рождения
                 </label>
                 <input type="date" id="birth-date" required>
             </div>
+            
             <div class="form-group">
                 <label for="birth-time">
-                     <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8 8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                    </svg>
                     Время рождения
                 </label>
                 <input type="time" id="birth-time" required>
             </div>
+            
             <div class="form-group city-search-container">
                 <label for="city-search">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                    Город
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    Город рождения
                 </label>
-                <input type="text" id="city-search" placeholder="Начните поиск..." required autocomplete="off">
+                <input type="text" id="city-search" placeholder="Начните вводить название города..." required autocomplete="off">
                 <input type="hidden" id="selected-location-data">
                 <div id="city-results"></div>
             </div>
             
-            <div class="button-group">
-                <button type="submit" class="primary-btn">📝 Отправить анкету</button>
-                <button type="button" class="test-btn" onclick="sendTestMessage()">🧪 Тест сообщения</button>
-                <button type="button" class="debug-btn" onclick="showDebugInfo()">🔍 Показать отладку</button>
-            </div>
+            <button type="submit" class="submit-btn" id="submit-btn">
+                📝 Отправить анкету
+            </button>
+            
+            <div id="error-message" class="error-message"></div>
         </form>
     </div>
     
     <script>
-        const debugDiv = document.getElementById('debug');
-        const statusDiv = document.getElementById('status');
-        let debugVisible = false;
-        
-        function debugLog(message) {
-            const timestamp = new Date().toLocaleTimeString();
-            const logMessage = `[${timestamp}] ${message}\n`;
-            console.log(message);
-            debugDiv.textContent += logMessage;
-            debugDiv.scrollTop = debugDiv.scrollHeight;
-        }
-        
-        function showDebugInfo() {
-            debugVisible = !debugVisible;
-            debugDiv.style.display = debugVisible ? 'block' : 'none';
-        }
-        
-        function sendTestMessage() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                try {
-                    // Отправляем простое тестовое сообщение
-                    const testData = {
-                        type: 'test',
-                        message: 'Тестовое сообщение из Web App',
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    debugLog('🧪 Отправляем тест: ' + JSON.stringify(testData));
-                    Telegram.WebApp.sendData(JSON.stringify(testData));
-                    
-                } catch (error) {
-                    debugLog('❌ Ошибка теста: ' + error.message);
-                }
-            } else {
-                debugLog('❌ Telegram WebApp недоступен для теста');
-            }
-        }
-        
-        // Инициализация Telegram Web App
-        debugLog('🚀 Инициализация...');
-        
+        // Инициализация Telegram WebApp
         if (window.Telegram && window.Telegram.WebApp) {
-            debugLog('✅ Telegram WebApp найден');
-            debugLog('📱 Версия: ' + Telegram.WebApp.version);
-            debugLog('🌐 Платформа: ' + Telegram.WebApp.platform);
-            debugLog('🎨 Цветовая схема: ' + Telegram.WebApp.colorScheme);
-            
-            // Инициализация
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
             
-            statusDiv.classList.add('ready');
-            debugLog('✅ WebApp готов');
-            
-            // События
-            Telegram.WebApp.onEvent('webAppDataSent', () => {
-                debugLog('📤 Событие: webAppDataSent');
-            });
-            
-            // Получение данных от пользователя
+            // Предзаполнение имени из данных пользователя
             const user = Telegram.WebApp.initDataUnsafe.user;
-            if (user) {
-                debugLog('👤 Пользователь: ' + user.first_name + ' (' + user.id + ')');
-                // Предзаполняем имя если доступно
-                document.getElementById('name').value = user.first_name || '';
+            if (user && user.first_name) {
+                document.getElementById('name').value = user.first_name;
             }
-            
-        } else {
-            debugLog('❌ Telegram WebApp НЕ найден');
-            debugLog('🌍 User Agent: ' + navigator.userAgent);
-            debugLog('📍 Текущий URL: ' + window.location.href);
         }
         
-        // Поиск городов
+        // Элементы формы
+        const form = document.getElementById('mainForm');
         const nameInput = document.getElementById('name');
         const dateInput = document.getElementById('birth-date');
         const timeInput = document.getElementById('birth-time');
         const citySearchInput = document.getElementById('city-search');
         const cityResultsDiv = document.getElementById('city-results');
         const selectedLocationInput = document.getElementById('selected-location-data');
-        const form = document.getElementById('mainForm');
+        const submitBtn = document.getElementById('submit-btn');
+        const errorDiv = document.getElementById('error-message');
+        
         let debounceTimer;
         
+        // Функция поиска городов
         const searchCity = async (query) => {
-            if (query.length < 3) { 
-                cityResultsDiv.innerHTML = ''; 
-                return; 
+            if (query.length < 3) {
+                cityResultsDiv.innerHTML = '';
+                return;
             }
             
-            debugLog('🔍 Поиск города: ' + query);
-            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&accept-language=uk,en&limit=5`;
+            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&accept-language=ru,uk,en&limit=5&featuretype=city`;
             
-            try { 
-                const response = await fetch(url); 
-                const data = await response.json(); 
-                debugLog('📍 Найдено городов: ' + data.length);
-                displayResults(data); 
-            } catch (error) { 
-                debugLog('❌ Ошибка поиска города: ' + error.message);
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                console.error('Ошибка поиска города:', error);
             }
         };
         
+        // Отображение результатов поиска
         const displayResults = (results) => {
-            cityResultsDiv.innerHTML = ''; 
-            if (!results) return;
+            cityResultsDiv.innerHTML = '';
+            
+            if (!results || results.length === 0) {
+                return;
+            }
             
             results.forEach(place => {
-                const item = document.createElement('div'); 
-                item.className = 'result-item'; 
-                item.innerText = place.display_name;
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.textContent = place.display_name;
+                
                 item.onclick = () => {
                     citySearchInput.value = place.display_name;
-                    const locationData = { 
-                        city: place.address.city || place.address.town || place.address.village || '', 
-                        country: place.address.country || '', 
-                        full_address: place.display_name 
+                    const locationData = {
+                        city: place.address?.city || place.address?.town || place.address?.village || '',
+                        country: place.address?.country || '',
+                        full_address: place.display_name,
+                        latitude: place.lat,
+                        longitude: place.lon
                     };
-                    selectedLocationInput.value = JSON.stringify(locationData); 
+                    selectedLocationInput.value = JSON.stringify(locationData);
                     cityResultsDiv.innerHTML = '';
-                    debugLog('📍 Выбран город: ' + place.display_name);
                 };
+                
                 cityResultsDiv.appendChild(item);
             });
         };
         
-        citySearchInput.addEventListener('input', () => { 
-            clearTimeout(debounceTimer); 
-            selectedLocationInput.value = ''; 
-            debounceTimer = setTimeout(() => { 
-                searchCity(citySearchInput.value); 
-            }, 500); 
+        // Обработчик поиска городов
+        citySearchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            selectedLocationInput.value = '';
+            
+            debounceTimer = setTimeout(() => {
+                searchCity(citySearchInput.value);
+            }, 500);
         });
         
-        // Отправка формы
+        // Скрытие результатов при клике вне области
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.city-search-container')) {
+                cityResultsDiv.innerHTML = '';
+            }
+        });
+        
+        // Функция показа ошибки
+        const showError = (message) => {
+            errorDiv.textContent = message;
+            setTimeout(() => {
+                errorDiv.textContent = '';
+            }, 5000);
+        };
+        
+        // Обработка отправки формы
         form.addEventListener('submit', function(event) {
             event.preventDefault();
-            debugLog('📝 Отправка формы...');
             
-            const name = nameInput.value;
+            const name = nameInput.value.trim();
             const birthDate = dateInput.value;
             const birthTime = timeInput.value;
             const locationDataString = selectedLocationInput.value;
             
-            debugLog('📊 Данные: имя=' + name + ', дата=' + birthDate + ', время=' + birthTime + ', локация=' + (locationDataString ? 'есть' : 'нет'));
-            
+            // Валидация
             if (!name || !birthDate || !birthTime || !locationDataString) {
-                const errorMsg = 'Пожалуйста, заполните все поля и выберите город из выпадающего списка.';
-                debugLog('⚠️ ' + errorMsg);
-                
-                if (window.Telegram && window.Telegram.WebApp) {
-                    Telegram.WebApp.showAlert(errorMsg);
-                } else {
-                    alert(errorMsg);
-                }
+                showError('Пожалуйста, заполните все поля и выберите город из списка');
                 return;
             }
             
-            const locationData = JSON.parse(locationDataString);
+            // Показываем состояние загрузки
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = '';
             
-            const finalData = {
-                type: 'form_submission',
-                name: name,
-                birthDate: birthDate,
-                birthTime: birthTime,
-                location: locationData,
-                timestamp: new Date().toISOString()
-            };
-            
-            debugLog('📤 Финальные данные: ' + JSON.stringify(finalData, null, 2));
-            
-            if (window.Telegram && window.Telegram.WebApp) {
-                try {
-                    // Отправляем данные
-                    Telegram.WebApp.sendData(JSON.stringify(finalData));
-                    debugLog('✅ sendData выполнен');
+            try {
+                const locationData = JSON.parse(locationDataString);
+                
+                const formData = {
+                    type: 'form_submission',
+                    name: name,
+                    birthDate: birthDate,
+                    birthTime: birthTime,
+                    location: locationData,
+                    timestamp: new Date().toISOString()
+                };
+                
+                if (window.Telegram && window.Telegram.WebApp) {
+                    // Отправляем данные через Telegram WebApp
+                    Telegram.WebApp.sendData(JSON.stringify(formData));
                     
-                    // Показываем уведомление и закрываем
-                    if (Telegram.WebApp.isVersionAtLeast('6.1')) {
-                        Telegram.WebApp.showAlert('Форма успешно отправлена!', () => {
-                            debugLog('🚪 Закрытие WebApp');
+                    // Показываем успешное сообщение и закрываем WebApp
+                    setTimeout(() => {
+                        if (Telegram.WebApp.showAlert) {
+                            Telegram.WebApp.showAlert('Анкета успешно отправлена!', () => {
+                                Telegram.WebApp.close();
+                            });
+                        } else {
                             Telegram.WebApp.close();
-                        });
-                    } else {
-                        debugLog('🚪 Закрытие WebApp (старая версия)');
-                        setTimeout(() => {
-                            Telegram.WebApp.close();
-                        }, 1000);
-                    }
-                    
-                } catch (error) {
-                    debugLog('❌ Ошибка отправки: ' + error.message);
-                    alert('Ошибка при отправке данных: ' + error.message);
+                        }
+                    }, 500);
+                } else {
+                    // Fallback для тестирования вне Telegram
+                    console.log('Данные формы:', formData);
+                    showError('Форма работает только в Telegram WebApp');
                 }
-            } else {
-                debugLog('❌ Telegram WebApp недоступен для отправки');
-                alert('Telegram WebApp недоступен. Данные сохранены в консоли.');
+                
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                showError('Произошла ошибка при отправке данных');
+                
+                // Возвращаем кнопку в нормальное состояние
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = '📝 Отправить анкету';
             }
         });
-        
-        debugLog('🏁 Инициализация завершена');
     </script>
 </body>
 </html>
