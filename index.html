@@ -19,7 +19,6 @@
             padding: 10px;
             color: #333;
             font-size: 16px;
-            /* Предотвращаем зум на фокусе инпутов */
             -webkit-text-size-adjust: 100%;
         }
         
@@ -72,7 +71,6 @@
             background: white;
             -webkit-appearance: none;
             appearance: none;
-            /* Предотвращаем зум на iOS */
             transform: translateZ(0);
         }
         
@@ -82,56 +80,80 @@
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
         }
         
+        /* Стили для контейнера времени */
         .time-container {
             display: flex;
-            gap: 8px;
-            align-items: center;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        .time-input {
-            flex: 1;
+        .time-input-wrapper {
+            width: 100%;
         }
         
-        .seconds-option {
+        .time-input-wrapper input {
+            width: 100%;
+        }
+        
+        /* Стили для секций с чекбоксами */
+        .checkbox-section {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-top: 8px;
-            padding: 8px;
+            gap: 10px;
+            padding: 12px;
             background: #f7fafc;
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid #e2e8f0;
-            flex-wrap: wrap;
+            margin-top: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
         }
         
-        .seconds-option label {
-            font-size: 12px;
-            margin: 0;
-            font-weight: normal;
-            flex: 1;
-            min-width: 200px;
+        .checkbox-section:hover {
+            background: #edf2f7;
         }
         
-        .seconds-checkbox {
-            width: 18px !important;
-            height: 18px !important;
+        .checkbox-section input[type="checkbox"] {
+            width: 20px !important;
+            height: 20px !important;
             margin: 0;
-            flex-shrink: 0;
+            padding: 0;
             accent-color: #667eea;
             cursor: pointer;
-        }
-        
-        .seconds-input {
-            width: 60px !important;
-            padding: 6px !important;
-            font-size: 14px !important;
             flex-shrink: 0;
         }
         
-        #secondsInput {
-            display: none;
+        .checkbox-section label {
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+            color: #4a5568;
         }
         
+        /* Стили для поля секунд */
+        .seconds-input-wrapper {
+            display: none;
+            margin-top: 10px;
+        }
+        
+        .seconds-input-wrapper.show {
+            display: block;
+        }
+        
+        .seconds-input-wrapper input {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .seconds-input-wrapper label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        /* Стили для дат */
         .date-container {
             display: flex;
             gap: 8px;
@@ -146,64 +168,12 @@
             flex: 0 0 80px;
         }
         
-        .time-seconds-container {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .time-input-wrapper {
-            flex: 1;
-            min-width: 120px;
-        }
-        
-        .seconds-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        
-        .seconds-wrapper label {
-            font-size: 12px;
-            margin: 0;
-            font-weight: normal;
-            white-space: nowrap;
-        }
-        
-        /* Стили для чекбокса "Проживаю в другом месте" */
-        .location-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-            padding: 8px;
-            background: #f7fafc;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .location-checkbox input[type="checkbox"] {
-            width: 18px !important;
-            height: 18px !important;
-            margin: 0;
-            accent-color: #667eea;
-            cursor: pointer;
-        }
-        
-        .location-checkbox label {
-            font-size: 14px;
-            margin: 0;
-            font-weight: normal;
-            cursor: pointer;
-        }
-        
-        #locationSearch, #currentCitySearch {
+        /* Стили для поиска локаций */
+        .location-search-wrapper {
             position: relative;
         }
         
-        #suggestions, #currentCitySuggestions {
+        .suggestions {
             position: absolute;
             top: 100%;
             left: 0;
@@ -216,6 +186,7 @@
             overflow-y: auto;
             z-index: 1000;
             display: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .suggestion {
@@ -235,6 +206,7 @@
             border-bottom: none;
         }
         
+        /* Стили для кнопки отправки */
         .submit-btn {
             width: 100%;
             padding: 14px;
@@ -274,7 +246,7 @@
             font-size: 14px;
         }
         
-        /* Медиа-запросы для очень маленьких экранов */
+        /* Медиа-запросы */
         @media (max-width: 375px) {
             body {
                 padding: 8px;
@@ -300,11 +272,6 @@
                 font-size: 15px;
             }
             
-            label {
-                font-size: 13px;
-                margin-bottom: 5px;
-            }
-            
             .date-container {
                 gap: 6px;
             }
@@ -312,45 +279,8 @@
             .year-select {
                 flex: 0 0 70px;
             }
-            
-            .time-seconds-container {
-                gap: 6px;
-            }
-            
-            .time-input-wrapper {
-                min-width: 100px;
-            }
-            
-            .seconds-wrapper {
-                gap: 4px;
-            }
-            
-            .seconds-wrapper label {
-                font-size: 11px;
-            }
-            
-            .seconds-input {
-                width: 50px !important;
-                padding: 5px !important;
-                font-size: 13px !important;
-            }
-            
-            .suggestion {
-                padding: 8px 10px;
-                font-size: 13px;
-            }
-            
-            #suggestions, #currentCitySuggestions {
-                max-height: 120px;
-            }
-            
-            .submit-btn {
-                padding: 12px;
-                font-size: 15px;
-            }
         }
         
-        /* Для очень узких экранов */
         @media (max-width: 320px) {
             body {
                 padding: 5px;
@@ -368,39 +298,8 @@
                 padding: 9px;
                 font-size: 14px;
             }
-            
-            .time-seconds-container {
-                flex-wrap: wrap;
-                gap: 5px;
-            }
-            
-            .time-input-wrapper {
-                flex: 1 1 100%;
-                min-width: auto;
-            }
-            
-            .seconds-wrapper {
-                flex: 1 1 100%;
-                justify-content: flex-start;
-            }
         }
         
-        /* Для высоких но узких экранов (например iPhone SE) */
-        @media (max-height: 568px) and (max-width: 375px) {
-            .container {
-                margin: 5px auto;
-            }
-            
-            .form-group {
-                margin-bottom: 10px;
-            }
-            
-            h1 {
-                margin-bottom: 12px;
-            }
-        }
-        
-        /* Landscape ориентация на телефонах */
         @media (orientation: landscape) and (max-height: 500px) {
             body {
                 padding: 5px;
@@ -430,7 +329,6 @@
             }
         }
         
-        /* Стили для Telegram Web App */
         @media (max-width: 480px) {
             .container {
                 border-radius: 0;
@@ -451,12 +349,6 @@
             }
         }
         
-        /* Дополнительные стили для предотвращения проблем с скроллом */
-        html {
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
-        }
-        
         /* Убираем стандартные стили для инпутов на iOS */
         input[type="date"], input[type="time"], input[type="email"], input[type="text"], input[type="number"] {
             -webkit-appearance: none;
@@ -465,7 +357,6 @@
             background-color: white;
         }
         
-        /* Стили для date и time инпутов */
         input[type="date"]::-webkit-calendar-picker-indicator,
         input[type="time"]::-webkit-calendar-picker-indicator {
             opacity: 0.6;
@@ -477,12 +368,14 @@
     <div class="container">
         <h1>🌟 Астрологическая анкета</h1>
         <form id="astroForm">
+            <!-- Имя -->
             <div class="form-group">
                 <label for="name">Полное имя *</label>
                 <input type="text" id="name" name="name" required 
                        placeholder="Введите ваше полное имя">
             </div>
             
+            <!-- Дата рождения -->
             <div class="form-group">
                 <label for="birthDate">Дата рождения *</label>
                 <div class="date-container">
@@ -510,52 +403,62 @@
                 </div>
             </div>
             
+            <!-- Время рождения -->
             <div class="form-group">
                 <label for="birthTime">Время рождения *</label>
-                <div class="time-seconds-container">
+                <div class="time-container">
                     <div class="time-input-wrapper">
                         <input type="time" id="birthTime" name="birthTime" required step="60">
                     </div>
-                    <div class="seconds-wrapper">
-                        <input type="checkbox" id="includeSeconds" class="seconds-checkbox">
-                        <label for="includeSeconds">Секунды</label>
-                        <input type="number" id="secondsInput" class="seconds-input" 
-                               min="0" max="59" placeholder="00">
+                    
+                    <!-- Чекбокс для секунд -->
+                    <div class="checkbox-section" onclick="toggleSeconds()">
+                        <input type="checkbox" id="includeSeconds" onclick="event.stopPropagation()">
+                        <label for="includeSeconds">Указать секунды (если известны точно)</label>
+                    </div>
+                    
+                    <!-- Поле для ввода секунд -->
+                    <div class="seconds-input-wrapper" id="secondsInputWrapper">
+                        <label for="secondsInput">Секунды:</label>
+                        <input type="number" id="secondsInput" min="0" max="59" placeholder="00" value="0">
                     </div>
                 </div>
             </div>
             
+            <!-- Место рождения -->
             <div class="form-group">
                 <label for="location">Место рождения *</label>
-                <div id="locationSearch">
+                <div class="location-search-wrapper">
                     <input type="text" id="location" name="location" required 
                            placeholder="Введите город рождения" autocomplete="off">
-                    <div id="suggestions"></div>
+                    <div id="suggestions" class="suggestions"></div>
                 </div>
                 
-                <!-- Чекбокс для выбора другого места проживания -->
-                <div class="location-checkbox">
-                    <input type="checkbox" id="livesElsewhere">
+                <!-- Чекбокс для другого места проживания -->
+                <div class="checkbox-section" onclick="toggleCurrentCity()">
+                    <input type="checkbox" id="livesElsewhere" onclick="event.stopPropagation()">
                     <label for="livesElsewhere">Проживаю в другом месте</label>
                 </div>
             </div>
             
-            <!-- Скрытое поле для города проживания -->
+            <!-- Город проживания (скрытое поле) -->
             <div class="form-group hidden" id="currentCityGroup">
                 <label for="currentCity">Город проживания *</label>
-                <div id="currentCitySearch">
+                <div class="location-search-wrapper">
                     <input type="text" id="currentCity" name="currentCity" 
                            placeholder="Введите город где живете сейчас" autocomplete="off">
-                    <div id="currentCitySuggestions"></div>
+                    <div id="currentCitySuggestions" class="suggestions"></div>
                 </div>
             </div>
             
+            <!-- Email -->
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" 
                        placeholder="Введите ваш email (необязательно)">
             </div>
             
+            <!-- Пол -->
             <div class="form-group">
                 <label for="gender">Пол *</label>
                 <select id="gender" name="gender" required>
@@ -574,16 +477,27 @@
             Отправка данных...
         </div>
     </div>
+
     <script>
         // Инициализация Telegram WebApp
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-        
-        // Устанавливаем цвет фона в соответствии с темой Telegram
-        if (tg.colorScheme === 'dark') {
-            document.body.style.background = 'linear-gradient(135deg, #2d3748 0%, #4a5568 100%)';
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            
+            // Устанавливаем цвет фона в соответствии с темой Telegram
+            if (tg.colorScheme === 'dark') {
+                document.body.style.background = 'linear-gradient(135deg, #2d3748 0%, #4a5568 100%)';
+            }
         }
+        
+        // Переменные для хранения выбранных локаций
+        let selectedLocation = null;
+        let selectedCurrentCity = null;
+        let searchTimeout;
+        let currentCitySearchTimeout;
+        
+        // === ИНИЦИАЛИЗАЦИЯ ФОРМЫ ===
         
         // Заполнение селекторов даты
         function initializeDateSelectors() {
@@ -637,26 +551,61 @@
             }
         }
         
-        // Инициализируем селекторы даты
-        initializeDateSelectors();
+        // === ОБРАБОТЧИКИ ЧЕКБОКСОВ ===
         
-        // Добавляем обработчики для обновления дней в месяце
-        document.getElementById('birthMonth').addEventListener('change', updateDaysInMonth);
-        document.getElementById('birthYear').addEventListener('change', updateDaysInMonth);
-        
-        // Включение/выключение поля секунд
-        document.getElementById('includeSeconds').addEventListener('change', function() {
-            const secondsInput = document.getElementById('secondsInput');
-            if (this.checked) {
-                secondsInput.style.display = 'inline-block';
-                secondsInput.focus();
+        // Функция для переключения секунд
+        function toggleSeconds() {
+            const checkbox = document.getElementById('includeSeconds');
+            const wrapper = document.getElementById('secondsInputWrapper');
+            const input = document.getElementById('secondsInput');
+            
+            // Переключаем чекбокс
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                wrapper.classList.add('show');
+                input.focus();
             } else {
-                secondsInput.style.display = 'none';
-                secondsInput.value = '';
+                wrapper.classList.remove('show');
+                input.value = '0';
+            }
+        }
+        
+        // Функция для переключения города проживания
+        function toggleCurrentCity() {
+            const checkbox = document.getElementById('livesElsewhere');
+            const currentCityGroup = document.getElementById('currentCityGroup');
+            const currentCityInput = document.getElementById('currentCity');
+            
+            // Переключаем чекбокс
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                currentCityGroup.classList.remove('hidden');
+                currentCityInput.required = true;
+            } else {
+                currentCityGroup.classList.add('hidden');
+                currentCityInput.required = false;
+                currentCityInput.value = '';
+                selectedCurrentCity = null;
+                document.getElementById('currentCitySuggestions').style.display = 'none';
+            }
+        }
+        
+        // Отдельные обработчики для чекбоксов (для случая прямого клика)
+        document.getElementById('includeSeconds').addEventListener('change', function() {
+            const wrapper = document.getElementById('secondsInputWrapper');
+            const input = document.getElementById('secondsInput');
+            
+            if (this.checked) {
+                wrapper.classList.add('show');
+                input.focus();
+            } else {
+                wrapper.classList.remove('show');
+                input.value = '0';
             }
         });
         
-        // Показ/скрытие поля "Город проживания"
         document.getElementById('livesElsewhere').addEventListener('change', function() {
             const currentCityGroup = document.getElementById('currentCityGroup');
             const currentCityInput = document.getElementById('currentCity');
@@ -673,25 +622,17 @@
             }
         });
         
-        // Поиск локаций через Nominatim API
-        let searchTimeout;
-        let currentCitySearchTimeout;
-        
-        const locationInput = document.getElementById('location');
-        const suggestionsDiv = document.getElementById('suggestions');
-        let selectedLocation = null;
-        const currentCityInput = document.getElementById('currentCity');
-        const currentCitySuggestionsDiv = document.getElementById('currentCitySuggestions');
-        let selectedCurrentCity = null;
+        // === ПОИСК ЛОКАЦИЙ ===
         
         // Обработчик для места рождения
-        locationInput.addEventListener('input', function() {
+        document.getElementById('location').addEventListener('input', function() {
             const query = this.value.trim();
             
             if (query.length < 3) {
-                suggestionsDiv.style.display = 'none';
+                document.getElementById('suggestions').style.display = 'none';
                 return;
             }
+            
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 searchLocations(query, 'birth');
@@ -699,19 +640,21 @@
         });
         
         // Обработчик для города проживания
-        currentCityInput.addEventListener('input', function() {
+        document.getElementById('currentCity').addEventListener('input', function() {
             const query = this.value.trim();
             
             if (query.length < 3) {
-                currentCitySuggestionsDiv.style.display = 'none';
+                document.getElementById('currentCitySuggestions').style.display = 'none';
                 return;
             }
+            
             clearTimeout(currentCitySearchTimeout);
             currentCitySearchTimeout = setTimeout(() => {
                 searchLocations(query, 'current');
             }, 300);
         });
         
+        // Функция поиска локаций
         async function searchLocations(query, type) {
             try {
                 const response = await fetch(
@@ -725,9 +668,14 @@
             }
         }
         
+        // Отображение подсказок
         function displaySuggestions(locations, type) {
-            const suggestionsContainer = type === 'birth' ? suggestionsDiv : currentCitySuggestionsDiv;
-            const inputField = type === 'birth' ? locationInput : currentCityInput;
+            const suggestionsContainer = type === 'birth' 
+                ? document.getElementById('suggestions')
+                : document.getElementById('currentCitySuggestions');
+            const inputField = type === 'birth' 
+                ? document.getElementById('location')
+                : document.getElementById('currentCity');
             
             suggestionsContainer.innerHTML = '';
             
@@ -768,18 +716,18 @@
         
         // Скрытие подсказок при клике вне
         document.addEventListener('click', function(e) {
-            if (!e.target.closest('#locationSearch')) {
-                suggestionsDiv.style.display = 'none';
-            }
-            if (!e.target.closest('#currentCitySearch')) {
-                currentCitySuggestionsDiv.style.display = 'none';
+            if (!e.target.closest('.location-search-wrapper')) {
+                document.getElementById('suggestions').style.display = 'none';
+                document.getElementById('currentCitySuggestions').style.display = 'none';
             }
         });
         
-        // Отправка формы
+        // === ОТПРАВКА ФОРМЫ ===
+        
         document.getElementById('astroForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Проверяем выбранную локацию рождения
             if (!selectedLocation) {
                 alert('Пожалуйста, выберите место рождения из предложенных вариантов');
                 return;
@@ -834,12 +782,12 @@
                     includeSeconds: includeSeconds,
                     birthLocation: selectedLocation,
                     currentCity: currentCityData,
-                    livesElsewhere: livesElsewhere, // Добавляем флаг для понимания в n8n
+                    livesElsewhere: livesElsewhere,
                     timestamp: new Date().toISOString(),
                     
                     // Добавляем данные Telegram пользователя если доступны
-                    telegramUser: tg.initDataUnsafe?.user || null,
-                    telegramChatId: tg.initDataUnsafe?.chat?.id || null,
+                    telegramUser: tg?.initDataUnsafe?.user || null,
+                    telegramChatId: tg?.initDataUnsafe?.chat?.id || null,
                     
                     // Отдельные компоненты даты и времени
                     separateComponents: {
@@ -852,7 +800,8 @@
                     }
                 };
                 
-                console.log('Telegram init data:', tg.initDataUnsafe);
+                console.log('Отправляемые данные:', data);
+                console.log('Telegram init data:', tg?.initDataUnsafe);
                 
                 await sendToN8N(data);
                 
@@ -861,19 +810,24 @@
                     tg.close();
                 } else {
                     alert('Данные успешно отправлены!');
-                    submitBtn.disabled = false;
-                    loadingDiv.style.display = 'none';
+                    // Очищаем форму
+                    this.reset();
+                    selectedLocation = null;
+                    selectedCurrentCity = null;
+                    document.getElementById('secondsInputWrapper').classList.remove('show');
+                    document.getElementById('currentCityGroup').classList.add('hidden');
                 }
                 
             } catch (error) {
                 console.error('Ошибка отправки:', error);
                 alert('Произошла ошибка при отправке данных. Попробуйте еще раз.');
-                
+            } finally {
                 submitBtn.disabled = false;
                 loadingDiv.style.display = 'none';
             }
         });
         
+        // Функция отправки данных в n8n
         async function sendToN8N(data) {
             const urlParams = new URLSearchParams(window.location.search);
             const isTest = urlParams.get('test') === 'true';
@@ -884,4 +838,38 @@
             
             console.log(`Отправка в ${isTest ? 'тестовый' : 'основной'} webhook:`, webhookUrl);
             
-            const response = await fetch(webhookUrl
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return response.json();
+        }
+        
+        // === ИНИЦИАЛИЗАЦИЯ ===
+        
+        // Инициализируем форму при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDateSelectors();
+            
+            // Добавляем обработчики для обновления дней в месяце
+            document.getElementById('birthMonth').addEventListener('change', updateDaysInMonth);
+            document.getElementById('birthYear').addEventListener('change', updateDaysInMonth);
+        });
+        
+        // Если DOM уже загружен
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDateSelectors);
+        } else {
+            initializeDateSelectors();
+        }
+        
+        // Добавляем обработчики для обновления дней в месяце
+        document.getElementById('
