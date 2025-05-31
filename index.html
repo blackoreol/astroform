@@ -101,6 +101,7 @@
                 </label>
                 <input type="time" id="birth-time" required>
             </div>
+
             <div class="form-group city-search-container">
                 <label for="city-search">
                     <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
@@ -117,10 +118,9 @@
     <script>
         Telegram.WebApp.ready();
 
-        // Обновляем переменные для полей ввода
         const nameInput = document.getElementById('name');
-        const dateInput = document.getElementById('birth-date'); // Новая переменная
-        const timeInput = document.getElementById('birth-time'); // Новая переменная
+        const dateInput = document.getElementById('birth-date');
+        const timeInput = document.getElementById('birth-time');
         const citySearchInput = document.getElementById('city-search');
         const cityResultsDiv = document.getElementById('city-results');
         const selectedLocationInput = document.getElementById('selected-location-data');
@@ -128,37 +128,59 @@
 
         let debounceTimer;
 
-        // Логика поиска города остается без изменений
         const searchCity = async (query) => {
-            if (query.length < 3) { cityResultsDiv.innerHTML = ''; return; }
+            if (query.length < 3) {
+                cityResultsDiv.innerHTML = '';
+                return;
+            }
             const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&accept-language=uk,en&limit=5`;
-            try { const response = await fetch(url); const data = await response.json(); displayResults(data); } catch (error) { console.error('Ошибка при поиске города:', error); }
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                // В рабочей версии можно убрать console.error
+            }
         };
+
         const displayResults = (results) => {
-            cityResultsDiv.innerHTML = ''; if (!results) return;
+            cityResultsDiv.innerHTML = '';
+            if (!results) return;
             results.forEach(place => {
-                const item = document.createElement('div'); item.className = 'result-item'; item.innerText = place.display_name;
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerText = place.display_name;
                 item.onclick = () => {
                     citySearchInput.value = place.display_name;
-                    const locationData = { city: place.address.city || place.address.town || place.address.village || '', country: place.address.country || '', full_address: place.display_name };
-                    selectedLocationInput.value = JSON.stringify(locationData); cityResultsDiv.innerHTML = '';
+                    const locationData = {
+                        city: place.address.city || place.address.town || place.address.village || '',
+                        country: place.address.country || '',
+                        full_address: place.display_name
+                    };
+                    selectedLocationInput.value = JSON.stringify(locationData);
+                    cityResultsDiv.innerHTML = '';
                 };
                 cityResultsDiv.appendChild(item);
             });
         };
-        citySearchInput.addEventListener('input', () => { clearTimeout(debounceTimer); selectedLocationInput.value = ''; debounceTimer = setTimeout(() => { searchCity(citySearchInput.value); }, 500); });
+
+        citySearchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            selectedLocationInput.value = '';
+            debounceTimer = setTimeout(() => {
+                searchCity(citySearchInput.value);
+            }, 500);
+        });
         
-        // Обновляем обработчик отправки формы
         form.addEventListener('submit', function(event) {
             event.preventDefault();
             
-            // Получаем данные из всех полей
             const name = nameInput.value;
-            const birthDate = dateInput.value; // Новое поле
-            const birthTime = timeInput.value; // Новое поле
+            const birthDate = dateInput.value;
+            const birthTime = timeInput.value;
             const locationDataString = selectedLocationInput.value;
 
-            // Обновляем валидацию
             if (!name || !birthDate || !birthTime || !locationDataString) {
                 Telegram.WebApp.showAlert('Пожалуйста, заполните все поля и выберите город из выпадающего списка.');
                 return;
@@ -166,7 +188,6 @@
 
             const locationData = JSON.parse(locationDataString);
             
-            // Обновляем финальный объект данных для отправки
             const finalData = {
                 name: name,
                 birthDate: birthDate,
