@@ -399,6 +399,10 @@
                     currentCity: selectedCurrentCity,
                     timestamp: new Date().toISOString(),
                     
+                    // Добавляем данные Telegram пользователя если доступны
+                    telegramUser: tg.initDataUnsafe?.user || null,
+                    telegramChatId: tg.initDataUnsafe?.chat?.id || null,
+                    
                     // Отдельные компоненты даты и времени (скрыто)
                     separateComponents: {
                         year: dateObj.getFullYear(),
@@ -410,17 +414,16 @@
                     }
                 };
                 
-                // Проверяем, работает ли форма в Telegram WebApp
-                if (tg && tg.initDataUnsafe && Object.keys(tg.initDataUnsafe).length > 0) {
-                    // Если в Telegram WebApp, отправляем через Telegram API
-                    console.log('Отправка через Telegram WebApp API');
-                    tg.sendData(JSON.stringify(data));
+                console.log('Telegram init data:', tg.initDataUnsafe);
+                
+                // Всегда отправляем напрямую в webhook
+                // Если в Telegram - данные пользователя будут включены в data
+                await sendToN8N(data);
+                
+                // Показываем успех и закрываем
+                if (tg && tg.close) {
+                    tg.close();
                 } else {
-                    // Иначе отправляем напрямую (для тестирования)
-                    console.log('Прямая отправка для тестирования');
-                    await sendToN8N(data);
-                    
-                    // Показываем сообщение об успехе вместо закрытия WebApp
                     alert('Данные успешно отправлены!');
                     submitBtn.disabled = false;
                     loadingDiv.style.display = 'none';
