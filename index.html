@@ -50,6 +50,10 @@
             margin-bottom: 15px;
         }
         
+        .form-group.hidden {
+            display: none;
+        }
+        
         label {
             display: block;
             margin-bottom: 6px;
@@ -166,6 +170,33 @@
             margin: 0;
             font-weight: normal;
             white-space: nowrap;
+        }
+        
+        /* Стили для чекбокса "Проживаю в другом месте" */
+        .location-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 8px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .location-checkbox input[type="checkbox"] {
+            width: 18px !important;
+            height: 18px !important;
+            margin: 0;
+            accent-color: #667eea;
+            cursor: pointer;
+        }
+        
+        .location-checkbox label {
+            font-size: 14px;
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
         }
         
         #locationSearch, #currentCitySearch {
@@ -501,12 +532,19 @@
                            placeholder="Введите город рождения" autocomplete="off">
                     <div id="suggestions"></div>
                 </div>
+                
+                <!-- Чекбокс для выбора другого места проживания -->
+                <div class="location-checkbox">
+                    <input type="checkbox" id="livesElsewhere">
+                    <label for="livesElsewhere">Проживаю в другом месте</label>
+                </div>
             </div>
             
-            <div class="form-group">
+            <!-- Скрытое поле для города проживания -->
+            <div class="form-group hidden" id="currentCityGroup">
                 <label for="currentCity">Город проживания *</label>
                 <div id="currentCitySearch">
-                    <input type="text" id="currentCity" name="currentCity" required 
+                    <input type="text" id="currentCity" name="currentCity" 
                            placeholder="Введите город где живете сейчас" autocomplete="off">
                     <div id="currentCitySuggestions"></div>
                 </div>
@@ -615,6 +653,23 @@
             } else {
                 secondsInput.style.display = 'none';
                 secondsInput.value = '';
+            }
+        });
+        
+        // Показ/скрытие поля "Город проживания"
+        document.getElementById('livesElsewhere').addEventListener('change', function() {
+            const currentCityGroup = document.getElementById('currentCityGroup');
+            const currentCityInput = document.getElementById('currentCity');
+            
+            if (this.checked) {
+                currentCityGroup.classList.remove('hidden');
+                currentCityInput.required = true;
+            } else {
+                currentCityGroup.classList.add('hidden');
+                currentCityInput.required = false;
+                currentCityInput.value = '';
+                selectedCurrentCity = null;
+                document.getElementById('currentCitySuggestions').style.display = 'none';
             }
         });
         
@@ -730,7 +785,10 @@
                 return;
             }
             
-            if (!selectedCurrentCity) {
+            const livesElsewhere = document.getElementById('livesElsewhere').checked;
+            
+            // Если отмечено "Проживаю в другом месте", то должен быть выбран город проживания
+            if (livesElsewhere && !selectedCurrentCity) {
                 alert('Пожалуйста, выберите город проживания из предложенных вариантов');
                 return;
             }
@@ -763,6 +821,9 @@
                 // Парсим дату и время для отдельных компонентов
                 const dateObj = new Date(birthDate + 'T' + fullTime);
                 
+                // Определяем текущий город: если не проживает в другом месте, то дублируем место рождения
+                const currentCityData = livesElsewhere ? selectedCurrentCity : selectedLocation;
+                
                 const data = {
                     name: name,
                     email: email,
@@ -772,7 +833,8 @@
                     birthTimeWithSeconds: fullTime,
                     includeSeconds: includeSeconds,
                     birthLocation: selectedLocation,
-                    currentCity: selectedCurrentCity,
+                    currentCity: currentCityData,
+                    livesElsewhere: livesElsewhere, // Добавляем флаг для понимания в n8n
                     timestamp: new Date().toISOString(),
                     
                     // Добавляем данные Telegram пользователя если доступны
@@ -822,32 +884,4 @@
             
             console.log(`Отправка в ${isTest ? 'тестовый' : 'основной'} webhook:`, webhookUrl);
             
-            const response = await fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            console.log('Данные успешно отправлены в n8n');
-            return response.json();
-        }
-        
-        // Устанавливаем сегодняшнюю дату как максимальную для поля даты рождения
-        // (убираем старый код для input[type="date"])
-        
-        // Предотвращаем зум при фокусе на инпутах (для iOS)
-        const inputs = document.querySelectorAll('input, select');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.style.fontSize = '16px';
-            });
-        });
-    </script>
-</body>
-</html>
+            const response = await fetch(webhookUrl
