@@ -91,12 +91,12 @@
             gap: 10px; 
             align-items: stretch; 
         }
-        #birthYear { /* Год теперь первый */
-            flex: 2; 
+        #birthYear { 
+            flex: 1.8; /* Год немного уже */
         }
-        .day-month-segment { /* Блок Месяц-День теперь второй */
+        .day-month-segment { 
             display: flex;
-            flex: 3; 
+            flex: 3.2; /* Блок Месяц-День немного шире */
             border: 2px solid var(--border-color);
             border-radius: 12px;
             overflow: hidden; 
@@ -117,15 +117,12 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        /* ИЗМЕНЕНО: Месяц теперь первый в сегменте */
         #birthMonth {
-            flex-basis: 60%; 
-            border-right: 2px solid var(--border-color); /* Разделитель справа от Месяца */
+            flex-basis: 55%; 
+            border-right: 2px solid var(--border-color); 
         }
-        /* ИЗМЕНЕНО: День теперь второй в сегменте */
         #birthDay {
-            flex-basis: 40%; 
-            /* border-right убран */
+            flex-basis: 45%; 
         }
         
         .time-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
@@ -278,7 +275,7 @@
             yearSelect.addEventListener('change', updateDaysInMonth);
         })();
 
-        // Остальной JavaScript без изменений (в сжатом виде)
+        // Остальной JavaScript без изменений (в сжатом виде для краткости)
         (function setupSecondsCheckbox(){const checkbox=document.getElementById('includeSeconds');const secondsInput=document.getElementById('secondsInput');checkbox.addEventListener('change',function(){if(this.checked){secondsInput.style.display='block';secondsInput.focus();}else{secondsInput.style.display='none';secondsInput.value='';}});})();
         (function setupUnknownTimeCheckbox(){const timeUnknownCheckbox=document.getElementById('timeUnknown');const timeUnknownSection=document.getElementById('timeUnknownSection');const birthTimeLabel=document.getElementById('birthTimeLabel');const timeControlsContainer=document.getElementById('timeControlsContainer');const birthTimeInput=document.getElementById('birthTime');function handleTimeUnknownChange(){const isTimeUnknown=timeUnknownCheckbox.checked;birthTimeLabel.style.display=isTimeUnknown?'none':'block';timeControlsContainer.style.display=isTimeUnknown?'none':'flex';if(isTimeUnknown){birthTimeInput.required=false;birthTimeInput.value='';const includeSecondsCheckbox=document.getElementById('includeSeconds');const secondsInput=document.getElementById('secondsInput');includeSecondsCheckbox.checked=false;secondsInput.value='';secondsInput.style.display='none';}else{birthTimeInput.required=true;}}
         timeUnknownCheckbox.addEventListener('change',handleTimeUnknownChange);timeUnknownSection.addEventListener('click',(e)=>{if(e.target!==timeUnknownCheckbox){timeUnknownCheckbox.checked=!timeUnknownCheckbox.checked;const changeEvent=new Event('change',{bubbles:true});timeUnknownCheckbox.dispatchEvent(changeEvent);}});})();
