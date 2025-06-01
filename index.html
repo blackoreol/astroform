@@ -76,7 +76,7 @@
             background-repeat: no-repeat;
             background-position: right 12px center;
             background-size: 16px;
-            padding-right: 35px; /* Место для стрелки */
+            padding-right: 35px; 
         }
         input[type="time"] { -webkit-appearance: textfield; -moz-appearance: textfield; appearance: textfield; }
         input[type="checkbox"] { -webkit-appearance: checkbox; -moz-appearance: checkbox; appearance: checkbox; }
@@ -86,49 +86,44 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        /* Стили для контейнера даты */
         .date-container {
             display: flex;
-            gap: 10px; /* Расстояние между блоком [День-Месяц] и [Год] */
+            gap: 10px; 
             align-items: stretch; 
         }
-
-        /* === Новый блок для Дня и Месяца === */
         .day-month-segment {
             display: flex;
-            flex: 3; /* Блок День-Месяц занимает больше места */
+            flex: 3; 
             border: 2px solid var(--border-color);
             border-radius: 12px;
-            overflow: hidden; /* Важно для корректного отображения внутренних элементов */
+            overflow: hidden; 
         }
         .day-month-segment select {
-            border: none; /* Убираем индивидуальные рамки у селектов внутри */
+            border: none; 
             padding: 12px; 
             font-size: 16px;
             background-color: white; 
-            border-radius: 0; /* Убираем индивидуальные скругления */
-            flex-grow: 1; /* Позволяем селектам расти */
+            border-radius: 0; 
+            flex-grow: 1; 
         }
-        .day-month-segment select:focus { /* Убираем стандартный outline при фокусе */
+        .day-month-segment select:focus { 
             outline: none;
             box-shadow: none;
         }
-        .day-month-segment:focus-within { /* Стиль фокуса для всего сегмента */
+        .day-month-segment:focus-within { 
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         #birthDay {
-            flex-basis: 40%; /* День */
-            border-right: 2px solid var(--border-color); /* Разделитель */
+            flex-basis: 40%; 
+            border-right: 2px solid var(--border-color); 
         }
         #birthMonth {
-            flex-basis: 60%; /* Месяц чуть шире */
+            flex-basis: 60%; 
         }
         #birthYear {
-            flex: 2; /* Год занимает оставшееся место */
-            /* Стили для birthYear (border, radius) берутся из общих правил для select */
+            flex: 2; 
         }
-        /* ================================= */
         
         .time-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .time-group input[type="time"] { flex: 1 1 120px; }
@@ -164,7 +159,7 @@
             </div>
             
             <div class="form-group">
-                <label>Дата рождения *</label>
+                <label>Дата рождения *</label> 
                 <div class="date-container">
                     <div class="day-month-segment">
                         <select id="birthDay" name="birthDay" required>
@@ -250,17 +245,30 @@
             const yearSelect = document.getElementById('birthYear');
             const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
             const currentYear = new Date().getFullYear();
+
             for (let i = currentYear; i >= 1920; i--) { yearSelect.add(new Option(i, i)); }
+            yearSelect.value = currentYear; // ИСПРАВЛЕНИЕ: Устанавливаем текущий год по умолчанию
+
             monthNames.forEach((name, index) => { monthSelect.add(new Option(name, index + 1)); });
+
             function updateDaysInMonth() {
-                const selectedMonth = parseInt(monthSelect.value);
-                const selectedYear = parseInt(yearSelect.value) || currentYear;
+                const selectedMonthStr = monthSelect.value;
+                const selectedYearStr = yearSelect.value;
+                
                 const currentDayValue = daySelect.value;
                 daySelect.innerHTML = '<option value="">День</option>';
-                if (selectedMonth && selectedYear) {
+                
+                // Заполняем дни, только если выбраны И месяц, И год
+                if (selectedMonthStr && selectedYearStr) {
+                    const selectedMonth = parseInt(selectedMonthStr);
+                    const selectedYear = parseInt(selectedYearStr);
                     const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
-                    for (let i = 1; i <= daysInMonth; i++) { daySelect.add(new Option(i, i)); }
-                    if (currentDayValue && parseInt(currentDayValue) <= daysInMonth) { daySelect.value = currentDayValue; }
+                    for (let i = 1; i <= daysInMonth; i++) {
+                        daySelect.add(new Option(i, i));
+                    }
+                    if (currentDayValue && parseInt(currentDayValue) <= daysInMonth) {
+                        daySelect.value = currentDayValue;
+                    }
                 }
             }
             updateDaysInMonth(); 
@@ -268,6 +276,7 @@
             yearSelect.addEventListener('change', updateDaysInMonth);
         })();
 
+        // Остальной JavaScript без изменений (в сжатом виде для краткости)
         (function setupSecondsCheckbox(){const checkbox=document.getElementById('includeSeconds');const secondsInput=document.getElementById('secondsInput');checkbox.addEventListener('change',function(){if(this.checked){secondsInput.style.display='block';secondsInput.focus();}else{secondsInput.style.display='none';secondsInput.value='';}});})();
         (function setupUnknownTimeCheckbox(){const timeUnknownCheckbox=document.getElementById('timeUnknown');const timeUnknownSection=document.getElementById('timeUnknownSection');const birthTimeLabel=document.getElementById('birthTimeLabel');const timeControlsContainer=document.getElementById('timeControlsContainer');const birthTimeInput=document.getElementById('birthTime');function handleTimeUnknownChange(){const isTimeUnknown=timeUnknownCheckbox.checked;birthTimeLabel.style.display=isTimeUnknown?'none':'block';timeControlsContainer.style.display=isTimeUnknown?'none':'flex';if(isTimeUnknown){birthTimeInput.required=false;birthTimeInput.value='';const includeSecondsCheckbox=document.getElementById('includeSeconds');const secondsInput=document.getElementById('secondsInput');includeSecondsCheckbox.checked=false;secondsInput.value='';secondsInput.style.display='none';}else{birthTimeInput.required=true;}}
         timeUnknownCheckbox.addEventListener('change',handleTimeUnknownChange);timeUnknownSection.addEventListener('click',(e)=>{if(e.target!==timeUnknownCheckbox){timeUnknownCheckbox.checked=!timeUnknownCheckbox.checked;const changeEvent=new Event('change',{bubbles:true});timeUnknownCheckbox.dispatchEvent(changeEvent);}});})();
