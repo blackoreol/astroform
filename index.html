@@ -91,13 +91,12 @@
             gap: 10px; 
             align-items: stretch; 
         }
-        /* === ИЗМЕНЕНИЯ ШИРИНЫ ПОЛЕЙ ДАТЫ (еще раз) === */
         #birthYear { 
-            flex: 1.5; /* Год еще немного уже */
+            flex: 1.5; 
         }
         .day-month-segment { 
             display: flex;
-            flex: 3.5; /* Блок Месяц-День еще немного шире */
+            flex: 3.5; 
             border: 2px solid var(--border-color);
             border-radius: 12px;
             overflow: hidden; 
@@ -125,7 +124,6 @@
         #birthDay {
             flex-basis: 45%; 
         }
-        /* ===================================== */
         
         .time-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .time-group input[type="time"] { flex: 1 1 120px; }
@@ -156,8 +154,8 @@
         <h1>🌟 Астрологическая анкета</h1>
         <form id="astroForm">
             <div class="form-group">
-                <label for="name">Полное имя *</label>
-                <input type="text" id="name" name="name" required placeholder="Введите ваше полное имя">
+                <label for="name">Имя *</label>
+                <input type="text" id="name" name="name" required placeholder="Введите ваше имя">
             </div>
             
             <div class="form-group">
@@ -249,7 +247,8 @@
             const currentYear = new Date().getFullYear();
 
             for (let i = currentYear; i >= 1920; i--) { yearSelect.add(new Option(i, i)); }
-            yearSelect.value = currentYear; 
+            // ИЗМЕНЕНО: Удалена строка yearSelect.value = currentYear; 
+            // Теперь по умолчанию будет выбрано "Год"
 
             monthNames.forEach((name, index) => { monthSelect.add(new Option(name, index + 1)); });
 
@@ -260,15 +259,19 @@
                 const currentDayValue = daySelect.value;
                 daySelect.innerHTML = '<option value="">День</option>';
                 
+                // Дни заполняются только если выбраны И месяц, И год
                 if (selectedMonthStr && selectedYearStr) {
                     const selectedMonth = parseInt(selectedMonthStr);
                     const selectedYear = parseInt(selectedYearStr);
-                    const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
-                    for (let i = 1; i <= daysInMonth; i++) {
-                        daySelect.add(new Option(i, i));
-                    }
-                    if (currentDayValue && parseInt(currentDayValue) <= daysInMonth) {
-                        daySelect.value = currentDayValue;
+                    // Дополнительная проверка, что значения не NaN (т.е. не пустые строки из placeholder'ов)
+                    if (!isNaN(selectedMonth) && !isNaN(selectedYear)) {
+                        const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+                        for (let i = 1; i <= daysInMonth; i++) {
+                            daySelect.add(new Option(i, i));
+                        }
+                        if (currentDayValue && parseInt(currentDayValue) <= daysInMonth) {
+                            daySelect.value = currentDayValue;
+                        }
                     }
                 }
             }
