@@ -170,15 +170,14 @@
             border-color: var(--primary-color);
         }
         
-        /* === ИСПРАВЛЕННЫЙ БЛОК ДЛЯ ВРЕМЕНИ === */
         .time-group {
             display: flex;
-            align-items: center; /* Выравнивание по центру для идеальной симметрии */
+            align-items: center;
             gap: 15px;
             flex-wrap: wrap;
         }
         .time-group input[type="time"] {
-            flex: 1 1 120px; /* Поле времени занимает основное место */
+            flex: 1 1 120px;
         }
         .seconds-control {
             display: flex;
@@ -186,7 +185,6 @@
             gap: 10px;
             flex-shrink: 0; 
         }
-        /* ===================================== */
 
         .seconds-control input[type="checkbox"] { 
             width: 18px; 
@@ -249,6 +247,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="form-group">
                 <label for="location">Место рождения *</label>
                 <div class="location-search-wrapper">
@@ -382,8 +381,16 @@
                 }
                 calendarWidget.appendChild(grid);
                 
-                document.getElementById('cal-prev').addEventListener('click', () => renderCalendar((month - 1 + 12) % 12, month === 0 ? year - 1 : year));
-                document.getElementById('cal-next').addEventListener('click', () => renderCalendar((month + 1) % 12, month === 11 ? year + 1 : year));
+                // === ИСПРАВЛЕНИЕ ЗДЕСЬ ===
+                // Добавляем (e) и e.stopPropagation() для предотвращения закрытия календаря
+                document.getElementById('cal-prev').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    renderCalendar((month - 1 + 12) % 12, month === 0 ? year - 1 : year);
+                });
+                document.getElementById('cal-next').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    renderCalendar((month + 1) % 12, month === 11 ? year + 1 : year);
+                });
             }
             
             dateInput.addEventListener('click', (e) => {
