@@ -91,12 +91,13 @@
             gap: 10px; 
             align-items: stretch; 
         }
+        /* === ИЗМЕНЕНИЯ ШИРИНЫ ПОЛЕЙ ДАТЫ (еще раз) === */
         #birthYear { 
-            flex: 1.8; /* Год немного уже */
+            flex: 1.5; /* Год еще немного уже */
         }
         .day-month-segment { 
             display: flex;
-            flex: 3.2; /* Блок Месяц-День немного шире */
+            flex: 3.5; /* Блок Месяц-День еще немного шире */
             border: 2px solid var(--border-color);
             border-radius: 12px;
             overflow: hidden; 
@@ -124,6 +125,7 @@
         #birthDay {
             flex-basis: 45%; 
         }
+        /* ===================================== */
         
         .time-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .time-group input[type="time"] { flex: 1 1 120px; }
