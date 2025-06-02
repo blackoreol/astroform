@@ -247,7 +247,6 @@
             const currentYear = new Date().getFullYear();
 
             for (let i = currentYear; i >= 1920; i--) { yearSelect.add(new Option(i, i)); }
-            // yearSelect.value = currentYear; // Год по умолчанию не выбран
 
             monthNames.forEach((name, index) => { monthSelect.add(new Option(name, index + 1)); });
 
@@ -304,8 +303,8 @@
         
         async function sendToBothN8N(data) {
             // === ИЗМЕНЕНИЕ: URL вебхуков ===
-            const testWebhookUrl = 'https://astroapp-fscefmh5b3hnbrgn.westeurope-01.azurewebsites.net/webhook-test/telegram-form';
-            const prodWebhookUrl = 'https://astroapp-fscefmh5b3hnbrgn.westeurope-01.azurewebsites.net/webhook/telegram-form';
+            const testWebhookUrl = 'https://n8n.dkonzersky.pp.ua/webhook-test/telegram-form';
+            const prodWebhookUrl = 'https://n8n.dkonzersky.pp.ua/webhook/telegram-form';
             // ===============================
 
             const sendPromises = [
@@ -314,16 +313,16 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 }).then(async response => {
-                     const responseBody = await response.text().catch(() => '[Could not read response body]');
-                     return { url: testWebhookUrl, ok: response.ok, status: response.status, body: responseBody };
+                      const responseBody = await response.text().catch(() => '[Could not read response body]');
+                      return { url: testWebhookUrl, ok: response.ok, status: response.status, body: responseBody };
                 }),
                 fetch(prodWebhookUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 }).then(async response => {
-                    const responseBody = await response.text().catch(() => '[Could not read response body]');
-                    return { url: prodWebhookUrl, ok: response.ok, status: response.status, body: responseBody };
+                   const responseBody = await response.text().catch(() => '[Could not read response body]');
+                   return { url: prodWebhookUrl, ok: response.ok, status: response.status, body: responseBody };
                 })
             ];
 
@@ -334,7 +333,7 @@
             let errors = [];
 
             results.forEach((result, index) => {
-                const urlName = index === 0 ? 'Test Webhook' : 'Production Webhook'; // Используем urlName для логов
+                const urlName = index === 0 ? 'Test Webhook' : 'Production Webhook';
                 if (result.status === 'fulfilled' && result.value.ok) {
                     successCount++;
                     console.log(`Successfully sent to ${urlName} (${result.value.url}). Status: ${result.value.status}. Body: ${result.value.body}`);
@@ -343,8 +342,6 @@
                     console.error(errorMsg);
                     errors.push(errorMsg);
                 } else { // result.status === 'rejected'
-                    // Для result.reason лучше также выводить result.value.url, если это возможно,
-                    // но result.reason уже содержит информацию об ошибке, связанную с URL.
                     const errorMsg = `Failed to send to ${urlName}. Reason: ${result.reason}`;
                     console.error(errorMsg);
                     errors.push(errorMsg);
