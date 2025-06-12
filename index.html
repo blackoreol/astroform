@@ -161,7 +161,7 @@
 </div>  
 <script>  
 const monthNamesRu = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];  
-const startYear = 1920, endYear = new Date().getFullYear();  
+const startYear = 1940, endYear = new Date().getFullYear();  
 const yearWheel = document.getElementById('yearWheel');  
 const monthWheel = document.getElementById('monthWheel');  
 const dayWheel = document.getElementById('dayWheel');  
@@ -175,7 +175,6 @@ const okBtn = document.getElementById('pickerOk');
 const cancelBtn = document.getElementById('pickerCancel');  
 let selectedYear = endYear, selectedMonth = 1, selectedDay = 1;  
 let yearsList = [], monthsList = [], daysList = [];  
-let isBirthDateSelected = false;  
 function makeLoopArray(arr, padding) {  
     let before = arr.slice(-padding);  
     let after = arr.slice(0, padding);  
@@ -518,23 +517,41 @@ document.getElementById('astroForm').addEventListener('submit', async function(e
                 second: dateObj.getSeconds()  
             }  
         };  
-        // ------ Если нужно видеть отправляемый объект ------  
-        //console.log(JSON.stringify(data, null, 2));  
-        // ------ == ------  
+        // Отправим на оба webhook  
         const testWebhookUrl = 'https://n8n.dkonzersky.pp.ua/webhook-test/telegram-form';  
         const prodWebhookUrl = 'https://n8n.dkonzersky.pp.ua/webhook/telegram-form';  
         const sendPromises = [  
-            fetch(testWebhookUrl, {method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify(data)}),  
-            fetch(prodWebhookUrl, {method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify(data)}),  
+            fetch(testWebhookUrl, {  
+                method: 'POST',  
+                headers: {'Content-Type': 'application/json'},  
+                body: JSON.stringify(data)  
+            }),  
+            fetch(prodWebhookUrl, {  
+                method: 'POST',  
+                headers: {'Content-Type': 'application/json'},  
+                body: JSON.stringify(data)  
+            }),  
         ];  
-        await Promise.all(sendPromises);  
+        const results = await Promise.allSettled(sendPromises);  
+        let success = false;  
+        results.forEach(result=>{  
+            if(result.status==='fulfilled' && result.value.ok) success=true;  
+        });  
         loadingDiv.style.display = 'none';  
-        submitBtn.classList.add('success');  
-        submitBtn.innerText = '✅ Успешно отправлено';  
-        if (window.Telegram?.WebApp?.close) {  
-            setTimeout(() => { window.Telegram.WebApp.close(); }, 1700);  
+        if(success) {  
+            submitBtn.classList.add('success');  
+            submitBtn.innerText = '✅ Успешно отправлено';  
+            if (window.Telegram?.WebApp?.close) {  
+                setTimeout(() => { window.Telegram.WebApp.close(); }, 1700);  
+            } else {  
+                alert('Данные успешно отправлены');  
+            }  
         } else {  
-            alert('Данные успешно отправлены');  
+            errorDiv.textContent = 'Произошла ошибка при отправке. Пожалуйста, попробуйте снова.';  
+            errorDiv.style.display = 'block';  
+            submitBtn.classList.add('error');  
+            submitBtn.innerText = '❌ Попробовать снова';  
+            submitBtn.disabled = false;  
         }  
     } catch (error) {  
         loadingDiv.style.display = 'none';  
