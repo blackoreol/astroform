@@ -1,521 +1,688 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Астрологическая анкета</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --primary-color: #667eea;
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --border-color: #e2e8f0;
-            --text-color: #4a5568;
-            --bg-light: #f7fafc;
-            --success-color: #48bb78;
-            --error-color: #f56565;
-        }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--primary-gradient);
-            min-height: 100vh;
-            padding: 15px;
-            color: #333;
-            font-size: 16px;
-        }
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-        }
-        h1 {
-            text-align: center;
-            color: var(--text-color);
-            margin-bottom: 25px;
-            font-size: 22px;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .form-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .form-group.hidden { display: none; }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-color);
-            font-size: 14px;
-        }
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: white;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-        }
-        select {
-            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5z%22%20fill%3D%22%23888%22%2F%3E%3C%2Fsvg%3E');
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            padding-right: 35px; 
-        }
-        input[type="time"] { -webkit-appearance: textfield; -moz-appearance: textfield; appearance: textfield; }
-        input[type="checkbox"] { -webkit-appearance: checkbox; -moz-appearance: checkbox; appearance: checkbox; }
-       
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .date-container {
-            display: flex;
-            gap: 10px; 
-            align-items: stretch; 
-        }
-        #birthYear { 
-            flex: 1.5; 
-        }
-        .day-month-segment { 
-            display: flex;
-            flex: 3.5; 
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden; 
-        }
-        .day-month-segment select {
-            border: none; 
-            padding: 12px; 
-            font-size: 16px;
-            background-color: white; 
-            border-radius: 0; 
-            flex-grow: 1; 
-        }
-        .day-month-segment select:focus { 
-            outline: none;
-            box-shadow: none;
-        }
-        .day-month-segment:focus-within { 
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        #birthMonth {
-            flex-basis: 55%; 
-            border-right: 2px solid var(--border-color); 
-        }
-        #birthDay {
-            flex-basis: 45%; 
-        }
-       
-        .time-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .time-group input[type="time"] { flex: 1 1 120px; }
-        .time-options-wrapper { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
-        .seconds-control { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        .seconds-control input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary-color); }
-        .seconds-control label { margin-bottom: 0; font-weight: normal; cursor: pointer; user-select: none; }
-        #secondsInput { width: 80px; padding: 12px; display: none; }
-        .location-search-wrapper { position: relative; }
-        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 12px 12px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; }
-        .suggestion { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--bg-light); transition: background-color 0.2s; }
-        .suggestion:hover { background-color: var(--bg-light); }
-        .checkbox-section { display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--bg-light); border-radius: 10px; border: 1px solid var(--border-color); margin-top: 10px; cursor: pointer; transition: background-color 0.2s ease; user-select: none; }
-        .checkbox-section:hover { background: #edf2f7; }
-        .checkbox-section input[type="checkbox"] { width: 20px !important; height: 20px !important; margin: 0; flex-shrink: 0; }
-        .checkbox-section label { margin: 0; font-weight: 500; }
-        .submit-btn { width: 100%; padding: 16px; background: var(--primary-gradient); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 10px; }
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); }
-        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .submit-btn.success { background: var(--success-color); }
-        .submit-btn.error { background: var(--error-color); }
-        .loading { text-align: center; color: var(--primary-color); margin: 15px 0 5px 0; display: none; }
-        .error-message { text-align: center; color: var(--error-color); font-size: 14px; margin-top: 15px; display: none; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🌟 Астрологическая анкета</h1>
-        <form id="astroForm">
-            <div class="form-group">
-                <label for="name">Имя *</label>
-                <input type="text" id="name" name="name" required placeholder="Введите ваше имя">
-            </div>
-           
-            <div class="form-group">
-                <label>Дата рождения *</label>
-                <div class="date-container">
-                    <select id="birthYear" name="birthYear" required>
-                        <option value="">Год</option>
-                    </select>
-                    <div class="day-month-segment">
-                        <select id="birthMonth" name="birthMonth" required>
-                            <option value="">Месяц</option>
-                        </select>
-                        <select id="birthDay" name="birthDay" required>
-                            <option value="">День</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group" id="birthTimeFormGroup">
-                <label for="birthTime" id="birthTimeLabel">Время рождения *</label>
-                <div class="time-group" id="timeControlsContainer">
-                    <input type="time" id="birthTime" name="birthTime" required step="60">
-                    <div class="time-options-wrapper">
-                        <div class="seconds-control" id="secondsControl">
-                            <input type="checkbox" id="includeSeconds">
-                            <label for="includeSeconds">Секунды</label>
-                            <input type="number" id="secondsInput" min="0" max="59" placeholder="00">
-                        </div>
-                    </div>
-                </div>
-                <div class="checkbox-section" id="timeUnknownSection">
-                    <input type="checkbox" id="timeUnknown">
-                    <label for="timeUnknown">Не знаю время рождения</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="location">Место рождения *</label>
-                <div class="location-search-wrapper">
-                    <input type="text" id="location" name="location" required placeholder="Введите город рождения" autocomplete="off">
-                    <div id="suggestions" class="suggestions"></div>
-                </div>
-                <div class="checkbox-section">
-                    <input type="checkbox" id="livesElsewhere">
-                    <label for="livesElsewhere">Проживаю в другом месте</label>
-                </div>
-            </div>
-            <div class="form-group hidden" id="currentCityGroup">
-                <label for="currentCity">Город проживания *</label>
-                <div class="location-search-wrapper">
-                    <input type="text" id="currentCity" name="currentCity" placeholder="Введите город, где живете сейчас" autocomplete="off">
-                    <div id="currentCitySuggestions" class="suggestions"></div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="gender">Пол *</label>
-                <select id="gender" name="gender" required>
-                    <option value="">Выберите пол</option>
-                    <option value="male">Мужской</option>
-                    <option value="female">Женский</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Введите ваш email (необязательно)">
-            </div>
-           
-            <div id="loading" class="loading">Отправка данных..</div>
-            <div id="errorMessage" class="error-message"></div>
-            <button type="submit" class="submit-btn" id="submitBtn">✨ Отправить данные</button>
-        </form>
-    </div>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tg = window.Telegram?.WebApp;
-        if (tg) {
-            tg.ready();
-            tg.expand();
-            if (tg.colorScheme === 'dark') { document.body.style.background = 'linear-gradient(135deg, #2d3748 0%, #4a5568 100%)'; }
-        }
-        let selectedLocation = null, selectedCurrentCity = null, searchTimeout, currentCitySearchTimeout;
-       
-        (function initializeSeparateDateSelectors() {
-            const daySelect = document.getElementById('birthDay');
-            const monthSelect = document.getElementById('birthMonth');
-            const yearSelect = document.getElementById('birthYear');
-            const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-            const currentYear = new Date().getFullYear();
-
-            for (let i = currentYear; i >= 1920; i--) { yearSelect.add(new Option(i, i)); }
-
-            monthNames.forEach((name, index) => { monthSelect.add(new Option(name, index + 1)); });
-
-            function updateDaysInMonth() {
-                const selectedMonthStr = monthSelect.value;
-                const selectedYearStr = yearSelect.value;
-               
-                const currentDayValue = daySelect.value;
-                daySelect.innerHTML = '<option value="">День</option>';
-               
-                if (selectedMonthStr && selectedYearStr) {
-                    const selectedMonth = parseInt(selectedMonthStr);
-                    const selectedYear = parseInt(selectedYearStr);
-                    if (!isNaN(selectedMonth) && !isNaN(selectedYear)) {
-                        const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
-                        for (let i = 1; i <= daysInMonth; i++) {
-                            daySelect.add(new Option(i, i));
-                        }
-                        if (currentDayValue && parseInt(currentDayValue) <= daysInMonth) {
-                            daySelect.value = currentDayValue;
-                        }
-                    }
-                }
-            }
-            updateDaysInMonth(); 
-            monthSelect.addEventListener('change', updateDaysInMonth);
-            yearSelect.addEventListener('change', updateDaysInMonth);
-        })();
-
-        (function setupSecondsCheckbox(){const checkbox=document.getElementById('includeSeconds');const secondsInput=document.getElementById('secondsInput');checkbox.addEventListener('change',function(){if(this.checked){secondsInput.style.display='block';secondsInput.focus();}else{secondsInput.style.display='none';secondsInput.value='';}});})();
-        (function setupUnknownTimeCheckbox(){const timeUnknownCheckbox=document.getElementById('timeUnknown');const timeUnknownSection=document.getElementById('timeUnknownSection');const birthTimeLabel=document.getElementById('birthTimeLabel');const timeControlsContainer=document.getElementById('timeControlsContainer');const birthTimeInput=document.getElementById('birthTime');function handleTimeUnknownChange(){const isTimeUnknown=timeUnknownCheckbox.checked;birthTimeLabel.style.display=isTimeUnknown?'none':'block';timeControlsContainer.style.display=isTimeUnknown?'none':'flex';if(isTimeUnknown){birthTimeInput.required=false;birthTimeInput.value='';const includeSecondsCheckbox=document.getElementById('includeSeconds');const secondsInput=document.getElementById('secondsInput');includeSecondsCheckbox.checked=false;secondsInput.value='';secondsInput.style.display='none';}else{birthTimeInput.required=true;}}
-        timeUnknownCheckbox.addEventListener('change',handleTimeUnknownChange);timeUnknownSection.addEventListener('click',(e)=>{if(e.target!==timeUnknownCheckbox){timeUnknownCheckbox.checked=!timeUnknownCheckbox.checked;const changeEvent=new Event('change',{bubbles:true});timeUnknownCheckbox.dispatchEvent(changeEvent);}});})();
-        (function setupCurrentCityCheckbox(){const checkbox=document.getElementById('livesElsewhere');const currentCityGroup=document.getElementById('currentCityGroup');const currentCityInput=document.getElementById('currentCity');function toggleCurrentCityField(){if(checkbox.checked){currentCityGroup.classList.remove('hidden');currentCityInput.required=true;setTimeout(()=>currentCityInput.focus(),100);}else{currentCityGroup.classList.add('hidden');currentCityInput.required=false;currentCityInput.value='';selectedCurrentCity=null;document.getElementById('currentCitySuggestions').style.display='none';}}
-        checkbox.addEventListener('change',toggleCurrentCityField);checkbox.closest('.checkbox-section').addEventListener('click',(e)=>{if(e.target!==checkbox){checkbox.checked=!checkbox.checked;toggleCurrentCityField();}});})();
-        
-        // Функция поиска местоположений через Nominatim
-        async function searchLocations(query, type) {
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(query)}&addressdetails=1&accept-language=ru`);
-                const locations = await response.json();
-                displaySuggestions(locations, type);
-            } catch (error) {
-                console.error('Location search error:', error);
-            }
-        }
-        
-        // Функция отображения подсказок
-        function displaySuggestions(locations, type) {
-            const suggestionsContainer = type === 'birth' ? document.getElementById('suggestions') : document.getElementById('currentCitySuggestions');
-            const inputField = type === 'birth' ? document.getElementById('location') : document.getElementById('currentCity');
-            suggestionsContainer.innerHTML = '';
-            if (locations.length === 0) {
-                suggestionsContainer.style.display = 'none';
-                return;
-            }
-            
-            locations.forEach(location => {
-                const div = document.createElement('div');
-                div.className = 'suggestion';
-                div.textContent = location.display_name;
-                
-                // Обработчик клика по подсказке
-                div.addEventListener('click', () => {
-                    inputField.value = location.display_name;
-                    suggestionsContainer.style.display = 'none';
-
-                    // Собираем данные о местоположении (БЕЗ часового пояса)
-                    const locationData = {
-                        city: location.address?.city || location.address?.town || location.address?.village || location.name,
-                        country: location.address?.country || '',
-                        country_code: location.address?.country_code || '', // Код страны остается
-                        full_address: location.display_name,
-                        latitude: location.lat,
-                        longitude: location.lon,
-                    };
-
-                    if (type === 'birth') {
-                        selectedLocation = locationData;
-                    } else {
-                        selectedCurrentCity = locationData;
-                    }
-                });
-                suggestionsContainer.appendChild(div);
-            });
-            suggestionsContainer.style.display = 'block';
-        }
-
-        document.getElementById('location').addEventListener('input', function() {
-            const query = this.value.trim();
-            selectedLocation = null;
-            if (query.length < 3) {
-                document.getElementById('suggestions').style.display = 'none';
-                return;
-            }
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => searchLocations(query, 'birth'), 300);
-        });
-        
-        document.getElementById('currentCity').addEventListener('input', function() {
-            const query = this.value.trim();
-            selectedCurrentCity = null;
-            if (query.length < 3) {
-                document.getElementById('currentCitySuggestions').style.display = 'none';
-                return;
-            }
-            clearTimeout(currentCitySearchTimeout);
-            currentCitySearchTimeout = setTimeout(() => searchLocations(query, 'current'), 300);
-        });
-        
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.location-search-wrapper') && !e.target.closest('.form-group .date-container')) {
-                document.getElementById('suggestions').style.display = 'none';
-                document.getElementById('currentCitySuggestions').style.display = 'none';
-            }
-        });
-
-        // Обработчик отправки формы
-        document.getElementById('astroForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const isTimeUnknown = document.getElementById('timeUnknown').checked;
-            const birthDayValue = document.getElementById('birthDay').value;
-            const birthMonthValue = document.getElementById('birthMonth').value;
-            const birthYearValue = document.getElementById('birthYear').value;
-            if (!birthDayValue || !birthMonthValue || !birthYearValue) {
-                alert('Пожалуйста, выберите полную дату рождения (день, месяц и год).');
-                return;
-            }
-            if (!document.getElementById('birthTime').checkValidity() && !isTimeUnknown) {
-                alert('Пожалуйста, укажите время рождения или отметьте "Не знаю время рождения".');
-                return;
-            }
-            if (!selectedLocation) {
-                alert('Пожалуйста, выберите место рождения из предложенных вариантов.');
-                return;
-            }
-            const livesElsewhere = document.getElementById('livesElsewhere').checked;
-            if (livesElsewhere && !selectedCurrentCity) {
-                alert('Пожалуйста, выберите город проживания из предложенных вариантов.');
-                return;
-            }
-            const submitBtn = document.getElementById('submitBtn');
-            const loadingDiv = document.getElementById('loading');
-            const errorDiv = document.getElementById('errorMessage');
-            submitBtn.disabled = true;
-            submitBtn.innerText = '✨ Отправить данные';
-            submitBtn.classList.remove('success', 'error');
-            errorDiv.style.display = 'none';
-            loadingDiv.style.display = 'block';
-            try {
-                const formData = new FormData(this);
-                const birthDay = String(birthDayValue).padStart(2, '0');
-                const birthMonth = String(birthMonthValue).padStart(2, '0');
-                const birthYear = birthYearValue;
-                const name = formData.get('name');
-                const email = formData.get('email') || '';
-                const gender = formData.get('gender');
-                const birthTime = isTimeUnknown ? '12:00' : formData.get('birthTime');
-                const includeSeconds = isTimeUnknown ? false : document.getElementById('includeSeconds').checked;
-                const seconds = includeSeconds ? (document.getElementById('secondsInput').value || '0').padStart(2, '0') : '00';
-                const birthDate = `${birthYear}-${birthMonth}-${birthDay}`;
-                const fullTime = `${birthTime}:${seconds}`;
-                const dateObj = new Date(`${birthDate}T${fullTime}`);
-                
-                const data = {
-                    name,
-                    email,
-                    gender,
-                    birthDate,
-                    birthTime,
-                    birthTimeWithSeconds: fullTime,
-                    includeSeconds,
-                    isTimeKnown: !isTimeUnknown,
-                    birthLocation: selectedLocation,
-                    currentCity: livesElsewhere ? selectedCurrentCity : selectedLocation,
-                    livesElsewhere,
-                    timestamp: new Date().toISOString(),
-                    telegramUser: tg?.initDataUnsafe?.user || null,
-                    telegramChatId: tg?.initDataUnsafe?.chat?.id || null,
-                    separateComponents: {
-                        year: dateObj.getFullYear(),
-                        month: dateObj.getMonth() + 1,
-                        day: dateObj.getDate(),
-                        hour: dateObj.getHours(),
-                        minute: dateObj.getMinutes(),
-                        second: dateObj.getSeconds()
-                    }
-                };
-               
-                console.log('Финальный объект данных для отправки:', JSON.stringify(data, null, 2));
-
-                await sendToBothN8N(data); 
-
-                loadingDiv.style.display = 'none';
-                submitBtn.classList.add('success');
-                submitBtn.innerText = '✅ Успешно отправлено';
-                if (tg && tg.close) {
-                    setTimeout(() => {
-                        tg.close();
-                    }, 2000);
-                } else {
-                    alert('Данные успешно отправлены');
-                }
-            } catch (error) {
-                console.error('Submit error:', error);
-                loadingDiv.style.display = 'none';
-                errorDiv.textContent = 'Произошла ошибка при отправке. Пожалуйста, попробуйте снова.';
-                errorDiv.style.display = 'block';
-                submitBtn.classList.add('error');
-                submitBtn.innerText = '❌ Попробовать снова';
-                submitBtn.disabled = false;
-            }
-        });
-       
-        async function sendToBothN8N(data) {
-            const testWebhookUrl = 'https://n8n.dkonzersky.pp.ua/webhook-test/telegram-form';
-            const prodWebhookUrl = 'https://n8n.dkonzersky.pp.ua/webhook/telegram-form';
-
-            const sendPromises = [
-                fetch(testWebhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                }).then(async response => {
-                    const responseBody = await response.text().catch(() => '[Could not read response body]');
-                    return { url: testWebhookUrl, ok: response.ok, status: response.status, body: responseBody };
-                }),
-                fetch(prodWebhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                }).then(async response => {
-                   const responseBody = await response.text().catch(() => '[Could not read response body]');
-                   return { url: prodWebhookUrl, ok: response.ok, status: response.status, body: responseBody };
-                })
-            ];
-
-            console.log('Attempting to send data to both test and production webhooks...');
-            const results = await Promise.allSettled(sendPromises);
-
-            let successCount = 0;
-            let errors = [];
-
-            results.forEach((result, index) => {
-                const urlName = index === 0 ? 'Test Webhook' : 'Production Webhook';
-                if (result.status === 'fulfilled' && result.value.ok) {
-                    successCount++;
-                    console.log(`Successfully sent to ${urlName} (${result.value.url}). Status: ${result.value.status}. Body: ${result.value.body}`);
-                } else if (result.status === 'fulfilled' && !result.value.ok) {
-                    const errorMsg = `HTTP error sending to ${urlName} (${result.value.url}). Status: ${result.value.status}. Body: ${result.value.body}`;
-                    console.error(errorMsg);
-                    errors.push(errorMsg);
-                } else {
-                    const errorMsg = `Failed to send to ${urlName}. Reason: ${result.reason}`;
-                    console.error(errorMsg);
-                    errors.push(errorMsg);
-                }
-            });
-
-            if (successCount > 0) {
-                if (errors.length > 0) {
-                    console.warn('Data sent successfully to at least one endpoint, but some errors occurred:', errors.join('; '));
-                }
-                return { success: true, message: `Data sent to ${successCount} endpoint(s).` };
-            } else {
-                const combinedErrorMsg = `Failed to send data to both webhooks. Errors: ${errors.join('; ')}`;
-                throw new Error(combinedErrorMsg);
-            }
-        }
-    });
-    </script>
-</body>
+<!DOCTYPE html>  
+<html lang="ru">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">  
+  <title>Астрологическая анкета</title>  
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>  
+  <style>  
+    :root {  
+      --primary-color: #667eea;  
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);  
+      --border-color: #e2e8f0;  
+      --text-color: #4a5568;  
+      --bg-light: #f7fafc;  
+      --success-color: #48bb78;  
+      --error-color: #f56565;  
+    }  
+    * {margin: 0; padding: 0; box-sizing: border-box;}  
+    body {  
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;  
+      background: var(--primary-gradient);  
+      min-height: 100vh;  
+      padding: 15px;  
+      color: #333;  
+      font-size: 16px;  
+    }  
+    .container {  
+      max-width: 480px;  
+      margin: 0 auto;  
+      background: rgba(255, 255, 255, 0.95);  
+      border-radius: 20px;  
+      padding: 20px;  
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);  
+      backdrop-filter: blur(10px);  
+    }  
+    h1 {  
+      text-align: center;  
+      color: var(--text-color);  
+      margin-bottom: 25px;  
+      font-size: 22px;  
+      background: var(--primary-gradient);  
+      -webkit-background-clip: text;  
+      background-clip: text;  
+      color: transparent;  
+    }  
+    .form-group {margin-bottom:20px; position:relative;}  
+    .form-group.hidden { display: none; }  
+    label {  
+      display: block;  
+      margin-bottom: 8px;  
+      font-weight: 600;  
+      color: var(--text-color);  
+      font-size: 14px;  
+    }  
+    input, select {  
+      width: 100%;  
+      padding: 12px;  
+      border: 2px solid var(--border-color);  
+      border-radius: 12px;  
+      font-size: 16px;  
+      transition: all 0.3s ease;  
+      background: white;  
+      -webkit-appearance: none;  
+      -moz-appearance: none;  
+      appearance: none;  
+    }  
+    input[type="time"] { -webkit-appearance: textfield; }  
+  
+    /* ==== Кастомный чекбокс ==== */  
+    .custom-checkbox {  
+      display: inline-flex;  
+      align-items: center;  
+      gap: 9px;  
+      cursor: pointer;  
+      user-select: none;  
+      font-weight: 500;  
+      font-size: 15px;  
+      margin-bottom: 0;  
+      position: relative;  
+    }  
+    .custom-checkbox input[type="checkbox"] {  
+      opacity: 0;  
+      width: 0;  
+      height: 0;  
+      position: absolute;  
+    }  
+    .custom-checkbox .checkmark {  
+      display: inline-block;  
+      width: 22px;  
+      height: 22px;  
+      border: 2px solid var(--primary-color);  
+      border-radius: 6px;  
+      background: #fff;  
+      transition: background 0.18s, border-color 0.18s;  
+      position: relative;  
+      box-sizing: border-box;  
+    }  
+    .custom-checkbox input[type="checkbox"]:checked + .checkmark {  
+      background: var(--primary-gradient);  
+      border-color: var(--primary-color);  
+    }  
+    .custom-checkbox .checkmark::after {  
+      content: "";  
+      position: absolute;  
+      display: none;  
+      width: 7px;  
+      height: 12px;  
+      left: 6px;  
+      top: 2px;  
+      border: solid #fff;  
+      border-width: 0 3px 3px 0;  
+      border-radius: 1.5px;  
+      transform: rotate(45deg);  
+    }  
+    .custom-checkbox input[type="checkbox"]:checked + .checkmark::after {  
+      display: block;  
+    }  
+    .custom-checkbox input[type="checkbox"]:focus + .checkmark {  
+      box-shadow: 0 0 0 3px rgba(102,126,234,0.17);  
+    }  
+    .custom-checkbox:hover .checkmark {  
+      border-color: #354cc8;  
+    }  
+  
+    .date-picker-trigger{  
+      display: flex; align-items: center; justify-content: flex-start;  
+      padding: 0 18px; height: 52px; min-width: 220px; width:100%;  
+      color: var(--text-color); font-size: 18px; font-weight: 500;  
+      background: #fff; border:2px solid var(--border-color); border-radius: 13px;  
+      cursor: pointer; transition: .16s; margin-bottom:0;  
+    }  
+    .date-picker-trigger.placeholder { color: #b4b4b7; font-weight: 400; }  
+    .date-picker-trigger:focus,.date-picker-trigger:hover {border-color:var(--primary-color);}  
+    .date-picker-trigger svg{margin-left:10px;}  
+    .picker-group { display: flex; height: 162px; align-items: center;  
+      border-radius: 13px; background: #f7faff;  
+      overflow: hidden; position: relative; width: 322px; max-width: 95vw; margin-bottom:17px;  
+      border: 2px solid #e2e8f0;}  
+    .picker-col { flex: 1 1 0; height: 100%; overflow-y: scroll; position: relative; scroll-snap-type: y mandatory; }  
+    .picker-col::-webkit-scrollbar {display: none;}  
+    .picker-option {  
+      scroll-snap-align: center;  
+      text-align: center; font-size: 17px;padding: 15px 2px;color: #bcbcbc;transition: color 0.2s, font-size 0.2s;  
+      user-select: none;cursor: pointer; background:transparent;  
+    }  
+    .picker-option.selected {  
+      color: #2d3748; background: #ececff;  
+      font-size: 21px; font-weight: bold; border-radius: 9px;  
+    }  
+    .picker-col::before, .picker-col::after {  
+      content: ''; position: absolute;left: 0; right: 0;height: 47px;  
+      background: linear-gradient(white, transparent);z-index: 2; pointer-events: none;  
+    }  
+    .picker-col::before { top: 0;}  
+    .picker-col::after { bottom: 0; transform: scaleY(-1);}  
+    .picker-group::after {  
+      content: ''; position: absolute; left: 0; right: 0; top:50%; transform:translateY(-50%);  
+      height:40px; background: rgba(76, 102, 234,0.07);  
+      z-index: 4; border-top:1.6px solid #667eea; border-bottom:1.6px solid #667eea; pointer-events:none;  
+    }  
+    .modal-overlay { display:none; position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:2000; background:rgba(0,0,0,0.13); align-items:center; justify-content:center;}  
+    .modal-overlay.active{display:flex;}  
+    .modal-box { width:370px;max-width:99vw;background:#fff; border-radius:18px;padding:27px 0 16px 0; box-shadow:0 8px 32px #0001; display:flex;flex-direction:column;align-items:center; }  
+    .modal-actions {display:flex;gap:14px;justify-content:center;margin-top:4px;}  
+    .modal-actions button {padding:9px 28px;font-size:16px;font-weight:600;border-radius:10px;border:none;cursor:pointer;transition:.13s}  
+    .modal-actions .ok-btn {background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff;}  
+    .modal-actions .cancel-btn {background: #e7eaf2;color:#6673b9;}  
+  
+    .location-search-wrapper { position: relative; }  
+    .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 12px 12px; max-height: 200px; overflow-y: auto; z-index: 1000; display: none; }  
+    .suggestion { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--bg-light); transition: background-color 0.2s; }  
+    .suggestion:hover { background-color: var(--bg-light); }  
+    .checkbox-section {  
+      display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--bg-light); border-radius: 10px;  
+      border: 1px solid var(--border-color); margin-top: 10px;  
+      transition: background-color 0.2s ease; user-select: none;  
+      min-height: 36px;  
+    }  
+    .checkbox-section:hover { background: #edf2f7; }  
+    .checkbox-section label { margin: 0; font-weight: 500; width:auto; }  
+    /* Время: */  
+    .time-group { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }  
+    .time-group input[type="time"] { flex: 1 1 120px; }  
+    .time-options-wrapper { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }  
+    .seconds-control { display: flex; align-items: center; gap: 8px; flex-shrink: 0;margin-top:0; }  
+    #secondsInput { width: 80px; padding: 12px; display: none; }  
+    .submit-btn { width: 100%; padding: 16px; background: var(--primary-gradient); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 10px; }  
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); }  
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }  
+    .submit-btn.success { background: var(--success-color); }  
+    .submit-btn.error { background: var(--error-color); }  
+    .loading { text-align: center; color: var(--primary-color); margin: 15px 0 5px 0; display: none; }  
+    .error-message { text-align: center; color: var(--error-color); font-size: 14px; margin-top: 15px; display: none; }  
+  
+    /* Мелкие правки */  
+    .checkbox-section label { cursor: pointer; }  
+    .seconds-control label { cursor: pointer; user-select: none; margin-bottom: 0;}  
+  </style>  
+</head>  
+<body>  
+  <div class="container">  
+    <h1>🌟 Астрологическая анкета</h1>  
+    <form id="astroForm" autocomplete="off">  
+      <div class="form-group">  
+        <label for="name">Имя *</label>  
+        <input type="text" id="name" name="name" required placeholder="Введите ваше имя">  
+      </div>  
+  
+      <div class="form-group">  
+        <label>Дата рождения *</label>  
+        <button type="button" class="date-picker-trigger placeholder" id="openPickerBtn" tabindex="0">  
+          <span id="displayBirthDate">Год / Месяц / День</span>  
+          <svg width="18" height="18"><path fill="currentColor" d="M6 8l3 3 3-3z"></path></svg>  
+        </button>  
+        <input type="hidden" id="birthYear" name="birthYear" required>  
+        <input type="hidden" id="birthMonth" name="birthMonth" required>  
+        <input type="hidden" id="birthDay" name="birthDay" required>  
+      </div>  
+  
+      <div class="form-group" id="birthTimeFormGroup">  
+        <label for="birthTime" id="birthTimeLabel">Время рождения *</label>  
+        <div class="time-group" id="timeControlsContainer">  
+          <input type="time" id="birthTime" name="birthTime" required step="60">  
+          <div class="time-options-wrapper">  
+            <div class="seconds-control" id="secondsControl">  
+              <label class="custom-checkbox">  
+                <input type="checkbox" id="includeSeconds">  
+                <span class="checkmark"></span>  
+                <span style="font-weight:400;font-size:15px;">Секунды</span>  
+              </label>  
+              <input type="number" id="secondsInput" min="0" max="59" placeholder="00">  
+            </div>  
+          </div>  
+        </div>  
+        <div class="checkbox-section" id="timeUnknownSection">  
+          <label class="custom-checkbox">  
+            <input type="checkbox" id="timeUnknown">  
+            <span class="checkmark"></span>  
+            Не знаю время рождения  
+          </label>  
+        </div>  
+      </div>  
+  
+      <div class="form-group">  
+        <label for="location">Место рождения *</label>  
+        <div class="location-search-wrapper">  
+          <input type="text" id="location" name="location" required placeholder="Введите город рождения" autocomplete="off">  
+          <div id="suggestions" class="suggestions"></div>  
+        </div>  
+        <div class="checkbox-section">  
+          <label class="custom-checkbox">  
+            <input type="checkbox" id="livesElsewhere">  
+            <span class="checkmark"></span>  
+            Проживаю в другом месте  
+          </label>  
+        </div>  
+      </div>  
+      <div class="form-group hidden" id="currentCityGroup">  
+        <label for="currentCity">Город проживания *</label>  
+        <div class="location-search-wrapper">  
+          <input type="text" id="currentCity" name="currentCity" placeholder="Введите город, где живете сейчас" autocomplete="off">  
+          <div id="currentCitySuggestions" class="suggestions"></div>  
+        </div>  
+      </div>  
+  
+      <div class="form-group">  
+        <label for="gender">Пол *</label>  
+        <select id="gender" name="gender" required>  
+          <option value="">Выберите пол</option>  
+          <option value="male">Мужской</option>  
+          <option value="female">Женский</option>  
+        </select>  
+      </div>  
+      <div class="form-group">  
+        <label for="email">Email</label>  
+        <input type="email" id="email" name="email" placeholder="Введите ваш email (необязательно)">  
+      </div>  
+      <div id="loading" class="loading">Отправка данных..</div>  
+      <div id="errorMessage" class="error-message"></div>  
+      <button type="submit" class="submit-btn" id="submitBtn">✨ Отправить данные</button>  
+    </form>  
+  </div>  
+  
+  <div class="modal-overlay" id="pickerModal">  
+    <div class="modal-box">  
+      <div class="picker-group">  
+        <div class="picker-col" id="yearWheel"></div>  
+        <div class="picker-col" id="monthWheel"></div>  
+        <div class="picker-col" id="dayWheel"></div>  
+      </div>  
+      <div class="modal-actions">  
+        <button type="button" class="ok-btn" id="pickerOk">OK</button>  
+        <button type="button" class="cancel-btn" id="pickerCancel">Отмена</button>  
+      </div>  
+    </div>  
+  </div>  
+  
+<script>  
+// ... (оставьте весь wheel/date/submit/сервисный код как в вашем варианте полностью!)  
+/* --- Календарь колесики и форма, как было выше (вы уже скопировали этот блок, он тут не изменялся) --- */  
+const monthNamesRu = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];  
+const startYear = 1920, endYear = new Date().getFullYear();  
+/* ... wheel и picker code ... */  
+const yearWheel = document.getElementById('yearWheel');  
+const monthWheel = document.getElementById('monthWheel');  
+const dayWheel = document.getElementById('dayWheel');  
+const birthYearInput = document.getElementById('birthYear');  
+const birthMonthInput = document.getElementById('birthMonth');  
+const birthDayInput = document.getElementById('birthDay');  
+const openPickerBtn = document.getElementById('openPickerBtn');  
+const displayBirthDate = document.getElementById('displayBirthDate');  
+const pickerModal = document.getElementById('pickerModal');  
+const okBtn = document.getElementById('pickerOk');  
+const cancelBtn = document.getElementById('pickerCancel');  
+let selectedYear = endYear, selectedMonth = 1, selectedDay = 1;  
+let yearsList = [], monthsList = [], daysList = [];  
+let isBirthDateSelected = false;  
+function makeLoopArray(arr, padding) {  
+  let before = arr.slice(-padding);  
+  let after = arr.slice(0, padding);  
+  return before.concat(arr).concat(after);  
+}  
+function fillYearWheel() {  
+  yearsList = [];  
+  for(let i=endYear;i>=startYear;i--) yearsList.push(i);  
+  const loopArr = makeLoopArray(yearsList, 2);  
+  yearWheel.innerHTML = '';  
+  loopArr.forEach(y=>{  
+    let div=document.createElement('div');  
+    div.className='picker-option';  
+    div.innerText=y;  
+    div.dataset.value=y;  
+    yearWheel.appendChild(div);  
+  });  
+}  
+function fillMonthWheel() {  
+  monthsList = [];  
+  for(let i=0;i<12;i++) monthsList.push(i+1);  
+  const loopArr = makeLoopArray(monthsList, 2);  
+  monthWheel.innerHTML = '';  
+  loopArr.forEach(m=>{  
+    let div=document.createElement('div');  
+    div.className='picker-option';  
+    div.innerText=monthNamesRu[m-1];  
+    div.dataset.value=m;  
+    monthWheel.appendChild(div);  
+  });  
+}  
+function fillDayWheel() {  
+  let days = 28;  
+  if(selectedYear && selectedMonth) days = new Date(selectedYear, selectedMonth, 0).getDate();  
+  daysList = Array.from({length:days}, (_,i)=>i+1);  
+  const loopArr = makeLoopArray(daysList, 2);  
+  dayWheel.innerHTML = '';  
+  loopArr.forEach(d=>{  
+    let div=document.createElement('div');  
+    div.className='picker-option';  
+    div.innerText=d;  
+    div.dataset.value=d;  
+    dayWheel.appendChild(div);  
+  });  
+}  
+function getLoopRealIndex(val, arr) {  
+  let base = arr.indexOf(val);  
+  return base + 2;  
+}  
+function getValueFromScroll(wheel, arr) {  
+  const bounding = wheel.getBoundingClientRect();  
+  const center = bounding.y + bounding.height/2;  
+  let minDist = Infinity, idx=0;  
+  [...wheel.children].forEach((el,i)=>{  
+    const rect = el.getBoundingClientRect();  
+    const optCenter = rect.y + rect.height/2;  
+    const dist = Math.abs(center-optCenter);  
+    if(dist<minDist){minDist=dist;idx = i;}  
+  });  
+  let realVal = +wheel.children[idx].dataset.value;  
+  return {idx, realVal};  
+}  
+function scrollToValue(wheel, arr, val) {  
+  let idx = getLoopRealIndex(val, arr);  
+  if (wheel.children[idx]) wheel.scrollTop = wheel.children[idx].offsetTop - (wheel.clientHeight/2) + (wheel.children[idx].clientHeight/2);  
+}  
+function highlightWheel(wheel, arr, val) {  
+  [...wheel.children].forEach((el,i)=>el.classList.toggle('selected', +el.dataset.value===val));  
+}  
+function scrollDetectLoop(wheel, arr) {  
+  let firstItemTop = wheel.children[0].offsetTop;  
+  let lastPaddingItemTop = wheel.children[wheel.children.length-1].offsetTop;  
+  if (wheel.scrollTop < firstItemTop + 10) {  
+    setTimeout(()=>scrollToValue(wheel, arr, arr[arr.length-2]),1);  
+  } else if (wheel.scrollTop > lastPaddingItemTop - wheel.clientHeight - 10) {  
+    setTimeout(()=>scrollToValue(wheel, arr, arr[1]),1);  
+  }  
+}  
+yearWheel.addEventListener('scroll', function(){  
+  scrollDetectLoop(yearWheel, yearsList);  
+  clearTimeout(yearWheel._st);  
+  yearWheel._st = setTimeout(()=>{  
+    let {realVal}=getValueFromScroll(yearWheel, yearsList);  
+    selectedYear = realVal;  
+    highlightWheel(yearWheel, yearsList, selectedYear);  
+    fillDayWheel();  
+    scrollToValue(dayWheel, daysList, selectedDay);  
+    highlightWheel(dayWheel, daysList, selectedDay);  
+  }, 70);  
+});  
+yearWheel.addEventListener('click', function(e){  
+  if(e.target.classList.contains('picker-option')){  
+    selectedYear = +e.target.dataset.value;  
+    scrollToValue(yearWheel, yearsList, selectedYear);  
+    highlightWheel(yearWheel, yearsList, selectedYear);  
+    fillDayWheel();  
+    scrollToValue(dayWheel, daysList, selectedDay);  
+    highlightWheel(dayWheel, daysList, selectedDay);  
+  }  
+});  
+monthWheel.addEventListener('scroll', function(){  
+  scrollDetectLoop(monthWheel, monthsList);  
+  clearTimeout(monthWheel._st);  
+  monthWheel._st = setTimeout(()=>{  
+    let {realVal}=getValueFromScroll(monthWheel, monthsList);  
+    selectedMonth = realVal;  
+    highlightWheel(monthWheel, monthsList, selectedMonth);  
+    fillDayWheel();  
+    scrollToValue(dayWheel, daysList, selectedDay);  
+    highlightWheel(dayWheel, daysList, selectedDay);  
+  },70);  
+});  
+monthWheel.addEventListener('click', function(e){  
+  if(e.target.classList.contains('picker-option')){  
+    selectedMonth = +e.target.dataset.value;  
+    scrollToValue(monthWheel, monthsList, selectedMonth);  
+    highlightWheel(monthWheel, monthsList, selectedMonth);  
+    fillDayWheel();  
+    scrollToValue(dayWheel, daysList, selectedDay);  
+    highlightWheel(dayWheel, daysList, selectedDay);  
+  }  
+});  
+dayWheel.addEventListener('scroll', function(){  
+  scrollDetectLoop(dayWheel, daysList);  
+  clearTimeout(dayWheel._st);  
+  dayWheel._st = setTimeout(()=>{  
+    let {realVal}=getValueFromScroll(dayWheel, daysList);  
+    selectedDay = realVal;  
+    highlightWheel(dayWheel, daysList, selectedDay);  
+  }, 70);  
+});  
+dayWheel.addEventListener('click', function(e){  
+  if(e.target.classList.contains('picker-option')){  
+    selectedDay = +e.target.dataset.value;  
+    scrollToValue(dayWheel, daysList, selectedDay);  
+    highlightWheel(dayWheel, daysList, selectedDay);  
+  }  
+});  
+function showSelectedBirthDate() {  
+  const hasRealDate = birthYearInput.value && birthMonthInput.value && birthDayInput.value;  
+  if(hasRealDate) {  
+    isBirthDateSelected = true;  
+    displayBirthDate.textContent = `${birthYearInput.value} ${monthNamesRu[Number(birthMonthInput.value)-1]} ${birthDayInput.value}`;  
+    openPickerBtn.classList.remove('placeholder');  
+  } else {  
+    isBirthDateSelected = false;  
+    displayBirthDate.textContent = 'Год / Месяц / День';  
+    openPickerBtn.classList.add('placeholder');  
+  }  
+}  
+function openPicker() {  
+  fillYearWheel(); fillMonthWheel(); fillDayWheel();  
+  scrollToValue(yearWheel, yearsList, selectedYear);  
+  highlightWheel(yearWheel, yearsList, selectedYear);  
+  scrollToValue(monthWheel, monthsList, selectedMonth);  
+  highlightWheel(monthWheel, monthsList, selectedMonth);  
+  scrollToValue(dayWheel, daysList, selectedDay);  
+  highlightWheel(dayWheel, daysList, selectedDay);  
+  pickerModal.classList.add('active');  
+}  
+function closePicker() {pickerModal.classList.remove('active');}  
+okBtn.addEventListener('click', ()=>{  
+  closePicker();  
+  birthYearInput.value = selectedYear;  
+  birthMonthInput.value = selectedMonth;  
+  birthDayInput.value = selectedDay;  
+  showSelectedBirthDate();  
+});  
+openPickerBtn.addEventListener('click', openPicker);  
+cancelBtn.addEventListener('click', ()=>{closePicker();});  
+window.addEventListener('keydown', function(e){ if(pickerModal.classList.contains('active') && (e.key==='Escape')) closePicker(); });  
+showSelectedBirthDate();  
+  
+// Чекбоксы "Секунды" и "Не знаю время рождения"  
+(function setupSecondsCheckbox(){  
+  const checkbox=document.getElementById('includeSeconds');  
+  const secondsInput=document.getElementById('secondsInput');  
+  checkbox.addEventListener('change',function(){  
+    if(this.checked){  
+      secondsInput.style.display='block';  
+      secondsInput.focus();  
+    }else{  
+      secondsInput.style.display='none';  
+      secondsInput.value='';  
+    }  
+  });  
+})();  
+(function setupUnknownTimeCheckbox(){  
+  const timeUnknownCheckbox=document.getElementById('timeUnknown');  
+  const birthTimeLabel=document.getElementById('birthTimeLabel');  
+  const timeControlsContainer=document.getElementById('timeControlsContainer');  
+  const birthTimeInput=document.getElementById('birthTime');  
+  function handleTimeUnknownChange(){  
+    const isTimeUnknown=timeUnknownCheckbox.checked;  
+    birthTimeLabel.style.display=isTimeUnknown?'none':'block';  
+    timeControlsContainer.style.display=isTimeUnknown?'none':'flex';  
+    if(isTimeUnknown){  
+      birthTimeInput.required=false;  
+      birthTimeInput.value='';  
+      const includeSecondsCheckbox=document.getElementById('includeSeconds');  
+      const secondsInput=document.getElementById('secondsInput');  
+      includeSecondsCheckbox.checked=false;  
+      secondsInput.value='';  
+      secondsInput.style.display='none';  
+    }else{  
+      birthTimeInput.required=true;  
+    }  
+  }  
+  timeUnknownCheckbox.addEventListener('change',handleTimeUnknownChange);  
+})();  
+// Чекбокс "Проживаю в другом месте"  
+(function setupCurrentCityCheckbox(){  
+  const checkbox=document.getElementById('livesElsewhere');  
+  const currentCityGroup=document.getElementById('currentCityGroup');  
+  const currentCityInput=document.getElementById('currentCity');  
+  function toggleCurrentCityField(){  
+    if(checkbox.checked){  
+      currentCityGroup.classList.remove('hidden');  
+      currentCityInput.required=true;  
+      setTimeout(()=>currentCityInput.focus(),100);  
+    }else{  
+      currentCityGroup.classList.add('hidden');  
+      currentCityInput.required=false;  
+      currentCityInput.value='';  
+      selectedCurrentCity=null;  
+      document.getElementById('currentCitySuggestions').style.display='none';  
+    }  
+  }  
+  checkbox.addEventListener('change',toggleCurrentCityField);  
+})();  
+  
+let selectedLocation = null, selectedCurrentCity = null, searchTimeout, currentCitySearchTimeout;  
+async function searchLocations(query, type) {  
+  try {  
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(query)}&addressdetails=1&accept-language=ru`);  
+    const locations = await response.json();  
+    displaySuggestions(locations, type);  
+  } catch (error) {console.error('Location search error:', error);}  
+}  
+function displaySuggestions(locations, type) {  
+  const suggestionsContainer = type === 'birth' ? document.getElementById('suggestions') : document.getElementById('currentCitySuggestions');  
+  const inputField = type === 'birth' ? document.getElementById('location') : document.getElementById('currentCity');  
+  suggestionsContainer.innerHTML = '';  
+  if (locations.length === 0) {  
+    suggestionsContainer.style.display = 'none';  
+    return;  
+  }  
+  locations.forEach(location => {  
+    const div = document.createElement('div');  
+    div.className = 'suggestion';  
+    div.textContent = location.display_name;  
+    div.addEventListener('click', () => {  
+      inputField.value = location.display_name;  
+      suggestionsContainer.style.display = 'none';  
+      const locationData = {  
+        city: location.address?.city || location.address?.town || location.address?.village || location.name,  
+        country: location.address?.country || '',  
+        country_code: location.address?.country_code || '',  
+        full_address: location.display_name,  
+        latitude: location.lat,  
+        longitude: location.lon,  
+      };  
+      if (type === 'birth') { selectedLocation = locationData; } else { selectedCurrentCity = locationData; }  
+    });  
+    suggestionsContainer.appendChild(div);  
+  });  
+  suggestionsContainer.style.display = 'block';  
+}  
+document.getElementById('location').addEventListener('input', function() {  
+  const query = this.value.trim(); selectedLocation = null;  
+  if (query.length < 3) {document.getElementById('suggestions').style.display = 'none';return;}  
+  clearTimeout(searchTimeout);  
+  searchTimeout = setTimeout(() => searchLocations(query, 'birth'), 300);  
+});  
+document.getElementById('currentCity').addEventListener('input', function() {  
+  const query = this.value.trim(); selectedCurrentCity = null;  
+  if (query.length < 3) {document.getElementById('currentCitySuggestions').style.display = 'none';return;}  
+  clearTimeout(currentCitySearchTimeout);  
+  currentCitySearchTimeout = setTimeout(() => searchLocations(query, 'current'), 300);  
+});  
+document.addEventListener('click', function(e) {  
+  if (!e.target.closest('.location-search-wrapper') && !e.target.closest('.form-group .date-container')) {  
+    document.getElementById('suggestions').style.display = 'none';  
+    document.getElementById('currentCitySuggestions').style.display = 'none';  
+  }  
+});  
+document.getElementById('astroForm').addEventListener('submit', async function(e) {  
+  e.preventDefault();  
+  const isTimeUnknown = document.getElementById('timeUnknown').checked;  
+  const birthDayValue = document.getElementById('birthDay').value;  
+  const birthMonthValue = document.getElementById('birthMonth').value;  
+  const birthYearValue = document.getElementById('birthYear').value;  
+  if (!birthDayValue || !birthMonthValue || !birthYearValue) {  
+    alert('Пожалуйста, выберите полную дату рождения (день, месяц и год).');  
+    return;  
+  }  
+  if (!document.getElementById('birthTime').checkValidity() && !isTimeUnknown) {  
+    alert('Пожалуйста, укажите время рождения или отметьте "Не знаю время рождения".');return;  
+  }  
+  if (!selectedLocation) {  
+    alert('Пожалуйста, выберите место рождения из предложенных вариантов.');return;  
+  }  
+  const livesElsewhere = document.getElementById('livesElsewhere').checked;  
+  if (livesElsewhere && !selectedCurrentCity) {  
+    alert('Пожалуйста, выберите город проживания из предложенных вариантов.');return;  
+  }  
+  const submitBtn = document.getElementById('submitBtn');  
+  const loadingDiv = document.getElementById('loading');  
+  const errorDiv = document.getElementById('errorMessage');  
+  submitBtn.disabled = true; submitBtn.innerText = '✨ Отправить данные';  
+  submitBtn.classList.remove('success', 'error');  
+  errorDiv.style.display = 'none'; loadingDiv.style.display = 'block';  
+  try {  
+    const formData = new FormData(this);  
+    const birthDay = String(birthDayValue).padStart(2, '0');  
+    const birthMonth = String(birthMonthValue).padStart(2, '0');  
+    const birthYear = birthYearValue;  
+    const name = formData.get('name');  
+    const email = formData.get('email') || '';  
+    const gender = formData.get('gender');  
+    const birthTime = isTimeUnknown ? '12:00' : formData.get('birthTime');  
+    const includeSeconds = isTimeUnknown ? false : document.getElementById('includeSeconds').checked;  
+    const seconds = includeSeconds ? (document.getElementById('secondsInput').value || '0').padStart(2, '0') : '00';  
+    const birthDate = `${birthYear}-${birthMonth}-${birthDay}`;  
+    const fullTime = `${birthTime}:${seconds}`;  
+    const dateObj = new Date(`${birthDate}T${fullTime}`);  
+    const tg = window.Telegram?.WebApp;  
+    const data = {  
+      name,email,gender,birthDate,birthTime,birthTimeWithSeconds: fullTime,includeSeconds,isTimeKnown: !isTimeUnknown,  
+      birthLocation: selectedLocation,  
+      currentCity: livesElsewhere ? selectedCurrentCity : selectedLocation,  
+      livesElsewhere,  
+      timestamp: new Date().toISOString(),  
+      telegramUser: tg?.initDataUnsafe?.user || null,  
+      telegramChatId: tg?.initDataUnsafe?.chat?.id || null,  
+      separateComponents: {  
+        year: dateObj.getFullYear(),  
+        month: dateObj.getMonth() + 1,  
+        day: dateObj.getDate(),  
+        hour: dateObj.getHours(),  
+        minute: dateObj.getMinutes(),  
+        second: dateObj.getSeconds()  
+      }  
+    };  
+    const testWebhookUrl = 'https://n8n.dkonzersky.pp.ua/webhook-test/telegram-form';  
+    const prodWebhookUrl = 'https://n8n.dkonzersky.pp.ua/webhook/telegram-form';  
+    const sendPromises = [  
+      fetch(testWebhookUrl, {method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify(data)}),  
+      fetch(prodWebhookUrl, {method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify(data)}),  
+    ];  
+    await Promise.all(sendPromises);  
+    loadingDiv.style.display = 'none';  
+    submitBtn.classList.add('success');  
+    submitBtn.innerText = '✅ Успешно отправлено';  
+    if (window.Telegram?.WebApp?.close) {  
+      setTimeout(() => { window.Telegram.WebApp.close(); }, 1700);  
+    } else {  
+      alert('Данные успешно отправлены');  
+    }  
+  } catch (error) {  
+    loadingDiv.style.display = 'none';  
+    errorDiv.textContent = 'Произошла ошибка при отправке. Пожалуйста, попробуйте снова.';  
+    errorDiv.style.display = 'block';  
+    submitBtn.classList.add('error');  
+    submitBtn.innerText = '❌ Попробовать снова';  
+    submitBtn.disabled = false;  
+  }  
+});  
+</script>  
+</body>  
 </html>
