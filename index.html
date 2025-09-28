@@ -735,8 +735,8 @@ document.getElementById('astroForm').addEventListener('submit', async function(e
             }  
         };  
         // Отправим на оба webhook  
-        const testWebhookUrl = 'https://n8n.dkonzersky.pp.ua/webhook-test/telegram-form';  
-        const prodWebhookUrl = 'https://n8n.dkonzersky.pp.ua/webhook/telegram-form';  
+        const testWebhookUrl = 'https://n8n.astroapp.pp.ua/webhook-test/telegram-form';  
+        const prodWebhookUrl = 'https://n8n.astroapp.pp.ua/webhook/telegram-form';  
         const sendPromises = [  
             fetch(testWebhookUrl, {  
                 method: 'POST',  
@@ -792,3 +792,4 @@ document.getElementById('gender').addEventListener('change', ()=>{ showFieldErro
 </script>  
 </body>  
 </html>  
+
